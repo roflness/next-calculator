@@ -1,0 +1,364 @@
+/* custom font */
+@import url(https://fonts.googleapis.com/css?family=Roboto);
+
+/* basic reset */
+* {margin: 0; padding: 0;}
+
+html {
+	height: 100%;
+	background: linear-gradient(rgba(48, 89, 147, 0.6), rgba(255, 255, 255, 0.6));
+}
+
+body {
+	font-family: roboto, arial, verdana;
+    text-align: center;
+    padding: 20px 30px;
+}
+
+#msresult {
+	width: 450;
+	margin: 50px auto;
+	text-align: left;
+	position: relative;
+}
+
+@media (max-width: 768px) {
+    /* Tablet styles */
+    #msresult {
+        width: 80%;
+        margin: 20px auto;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Mobile styles */
+    #msresult {
+        width: 90%;
+        margin: 10px auto;
+    }
+}
+
+/* form styles */
+#msform {
+	width: 450px;
+	margin: 50px auto;
+	text-align: center;
+	position: relative;
+}
+
+#msform fieldset {
+	background: white;
+	border: 0 none;
+	border-radius: 3px;
+	box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
+	padding: 20px 30px;
+	box-sizing: border-box;
+	width: 80%;
+	margin: 0 10%;
+	position: relative;
+}
+
+#msform fieldset:not(:first-of-type) {
+	display: none;
+}
+
+#msform input:focus {
+    outline: none;
+    border: 2px solid #031281;
+  }
+
+#msform input, #msform textarea {
+	padding: 15px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	margin-bottom: 10px;
+	width: 100%;
+	box-sizing: border-box;
+	font-family: montserrat;
+	color: #2C3E50;
+	font-size: 13px;
+}
+
+#msform input, #msform select {
+	padding: 15px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	margin-bottom: 10px;
+	width: 100%;
+	box-sizing: border-box;
+	font-family: montserrat;
+	color: #2C3E50;
+	font-size: 13px;
+}
+
+#msform .action-button {
+	width: 100px;
+	background: #031281;
+	font-weight: bold;
+	color: white;
+	border: 0 none;
+	border-radius: 1px;
+	cursor: pointer;
+	padding: 10px;
+	margin: 10px 5px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+#msform .action-button:hover, #msform .action-button:focus {
+	box-shadow: 0 0 0 2px white, 0 0 0 3px #031281;
+}
+
+/* Secondary button styles */
+.secondary-button {
+    width: auto;
+    background: #ffffff;
+    color: #031281;
+    font-weight: bold;
+    border: 2px solid #031281;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 10px;
+    margin: 10px 5px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.remove-button {
+    width: auto;
+    background: #ffffff;
+    color: #ff0000;
+    font-weight: bold;
+    border: 2px solid #ff0000;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 10px;
+    margin: 10px 5px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.secondary-button:hover, .secondary-button:focus {
+    background-color: #031281;
+    color: white;
+    box-shadow: 0 0 0 2px white, 0 0 0 3px #031281;
+}
+
+.fs-header {
+	font-size: 32px;
+	text-transform: uppercase;
+	color: #031281;
+	margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.fs-title {
+	font-size: 15px;
+	/* text-transform: uppercase; */
+	color: #2C3E50;
+	margin-bottom: 10px;
+}
+
+.fs-second-title {
+	font-size: 18px;
+    font-weight: bold;
+	/* text-transform: uppercase; */
+	color: #2C3E50;
+	margin-bottom: 10px;
+}
+
+.fs-subtitle {
+	font-weight: normal;
+	font-size: 13px;
+	color: #666;
+	margin-bottom: 20px;
+}
+
+#progressbar {
+	margin-bottom: 30px;
+	overflow: hidden;
+	counter-reset: step;
+}
+
+#progressbar li {
+	list-style-type: none;
+	color: white;
+	text-transform: uppercase;
+	font-size: 9px;
+	width: 25%;
+	float: left;
+	position: relative;
+}
+
+#progressbar li:before {
+	content: counter(step);
+	counter-increment: step;
+	width: 20px;
+	line-height: 20px;
+	display: block;
+	font-size: 10px;
+	color: #333;
+	background: white;
+	border-radius: 3px;
+	margin: 0 auto 5px auto;
+}
+
+#progressbar li:after {
+	content: '';
+	width: 100%;
+	height: 2px;
+	background: white;
+	position: absolute;
+	left: -50%;
+	top: 9px;
+	z-index: -1;
+}
+
+#progressbar li:first-child:after {
+	content: none; 
+}
+
+#progressbar li.active:before,  #progressbar li.active:after {
+	background: #031281;
+	color: white;
+}
+
+@media (max-width: 768px) {
+    /* Tablet styles */
+    #msform {
+        width: 80%;
+        margin: 20px auto;
+    }
+
+    .fs-header {
+        font-size: 28px;
+    }
+
+    .fs-title {
+        font-size: 14px;
+    }
+
+    .fs-subtitle {
+        font-size: 12px;
+    }
+
+    #progressbar li {
+        font-size: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Mobile styles */
+    #msform {
+        width: 90%;
+        margin: 10px auto;
+    }
+
+    .fs-header {
+        font-size: 24px;
+    }
+
+    .fs-title {
+        font-size: 13px;
+    }
+
+    .fs-subtitle {
+        font-size: 11px;
+    }
+
+    #progressbar li {
+        font-size: 7px;
+    }
+
+    #msform .action-button {
+        width: 80px;
+        font-size: 12px;
+    }
+}
+
+/* Charger selection container */
+.charger-selection-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.charger-selection-container label {
+    width: 100%;
+    font-size: 14px;
+    color: #2C3E50;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.charger-selection-container .charger-pair {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.charger-selection-container .charger-type,
+.charger-selection-container .charger-count {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-family: montserrat;
+    color: #2C3E50;
+    font-size: 13px;
+    text-align: center;
+    width: 48%;
+    box-sizing: border-box;
+}
+
+.charger-selection-container .charger-type {
+    cursor: pointer;
+}
+
+.charger-selection-container .charger-type.active {
+    border: 2px solid #031281;
+    font-weight: bold;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .charger-selection-container {
+        flex-direction: column;
+    }
+
+    .charger-selection-container .charger-type,
+    .charger-selection-container .charger-count {
+        width: 100%;
+    }
+}
+
+.charger-entry {
+    margin-top: 10px;  /* Spacing between charger entries */
+}
+
+.charger-entry:first-of-type hr {
+    display: none; /* Hide the separator for the first charger entry */
+}
+
+label {
+    display: block;
+    margin-bottom: 5px; /* Space between label and input */
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8em;
+    height: 20px;
+}
+
+input:invalid {
+    border: 2px solid red;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

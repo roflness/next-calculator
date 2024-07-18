@@ -1,6 +1,9 @@
 import Image from "next/image";
 import React from "react";
 // import styles from "./page.module.css";
+import styles from "../css/styles.css";
+
+// /Users/rafaelreyes/Next Calculator/src/pages/page.tsx
 
 export default function Home() {
   return (
