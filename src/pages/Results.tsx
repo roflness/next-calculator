@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 
 interface ChargerType {
@@ -86,7 +87,7 @@ const Results = () => {
             <p><span className="fs-title">Net GHG Reductions (MT CO2): </span>{results.ghg_reduction_result['Net GHG Reductions (MT CO2)'].toFixed(2)}</p>
             <br/>
             <p>
-                <a href="/" className="secondary-button" target="_top">Calculate Again</a>
+                <Link href="/" className="secondary-button">Calculate Again</Link>
             </p>
         </div>
     );
