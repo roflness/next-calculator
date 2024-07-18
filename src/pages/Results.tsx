@@ -51,7 +51,8 @@ const Results = () => {
     const router = useRouter();
     const { data } = router.query;
 
-    const results = data ? JSON.parse(data) : {};
+    // Ensure data is a string before parsing
+    const results = typeof data === 'string' ? JSON.parse(data) : {};
 
     return (
         <div id="msresult">
