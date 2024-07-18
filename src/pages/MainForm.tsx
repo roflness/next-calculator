@@ -18,6 +18,12 @@ type FormData = {
     chargerCount: string;
   };
 
+  type ChargerType = {
+    charger_type_id: string;
+    type: string;
+    rating_kW: number;
+  };
+
 const MainForm = () => {
     const router = useRouter();
     const [step, setStep] = useState(1);
@@ -32,11 +38,8 @@ const MainForm = () => {
         timeOfDay: ''
     });
 
-    const [chargerEntries, setChargerEntries] = useState([
-        { chargerType: '', chargerCount: '' }
-    ]);
-
-    const [chargerTypes, setChargerTypes] = useState([]);
+    const [chargerEntries, setChargerEntries] = useState<ChargerEntry[]>([{ chargerType: '', chargerCount: '' }]);
+  const [chargerTypes, setChargerTypes] = useState<ChargerType[]>([]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
