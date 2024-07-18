@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/router';
 import { fetchChargerTypes, postResults } from '../app/api';
 
@@ -35,29 +35,29 @@ const MainForm = () => {
         loadChargerTypes();
     }, []);
 
-    const handleChange = (e, index = null) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number | null = null) => {
         if (index !== null) {
-            const newEntries = [...chargerEntries];
-            newEntries[index][e.target.name] = e.target.value;
-            setChargerEntries(newEntries);
+          const newEntries = [...chargerEntries];
+          newEntries[index][e.target.name] = e.target.value;
+          setChargerEntries(newEntries);
         } else {
-            setFormData({ ...formData, [e.target.name]: e.target.value });
+          setFormData({ ...formData, [e.target.name]: e.target.value });
         }
-    };
+      };
 
     const addCharger = () => {
         setChargerEntries([...chargerEntries, { chargerType: '', chargerCount: '' }]);
     };
 
-    const removeCharger = index => {
+    const removeCharger = (index: number) => {
         const newEntries = chargerEntries.filter((_, i) => i !== index);
         setChargerEntries(newEntries);
-    };
+      };
 
     const nextStep = () => setStep(step + 1);
     const prevStep = () => setStep(step > 1 ? step - 1 : step);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const payload = {
           ...formData,
