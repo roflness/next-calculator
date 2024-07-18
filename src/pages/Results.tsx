@@ -82,7 +82,7 @@ const Results = () => {
             <p><span className="fs-title">Basic Service Fee based with max load of {safeToFixed(results.load_kw)} kW: </span>${safeToFixed(results.max_load_kw_basic_service_fee)}</p>
             <br/>
             <h2 className="fs-second-title">GHG reductions as difference between gasoline and electric GHGs</h2>
-            <p><span className="fs-title">Miles Driven: </span>{results.ghg_reduction_result['Miles Driven']}</p>
+            <p><span className="fs-title">Miles Driven: </span>{results?.ghg_reduction_result?.['Miles Driven'] ?? 'N/A'}</p>
             <p><span className="fs-title">Gasoline Used (gallons): </span>{safeToFixed(results.ghg_reduction_result['Gasoline Used (gallons)'])}</p>
             <p><span className="fs-title">Electricity Used (kW): </span>{safeToFixed(results.ghg_reduction_result['Electricity Used (kWh)'])}</p>
             <br/>
