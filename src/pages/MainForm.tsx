@@ -2,6 +2,9 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/router';
 import { fetchChargerTypes, postResults } from '../app/api';
 
+// Log the environment variable to ensure it's being picked up
+console.log('API_BASE_URL:', process.env.NEXT_PUBLIC_API_BASE_URL);
+
 type FormData = {
     numVehicles: string;
     milesDrivenPerDay: string;
