@@ -1,1 +1,1 @@
-web: cd frontend && npm start & cd ../backend && python app.py
+web: sh -c 'cd my_frontend && npm start & cd ../backend && python3 app.py'
