@@ -2,6 +2,21 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/router';
 import { fetchChargerTypes, postResults } from '../app/api';
 
+type FormData = {
+    numVehicles: string;
+    milesDrivenPerDay: string;
+    batterySize: string;
+    vehicleEfficiency: string;
+    chargingHoursPerDay: string;
+    chargingDaysPerWeek: string;
+    season: string;
+    timeOfDay: string;
+  };
+  
+  type ChargerEntry = {
+    chargerType: string;
+    chargerCount: string;
+  };
 
 const MainForm = () => {
     const router = useRouter();
@@ -38,7 +53,8 @@ const MainForm = () => {
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number | null = null) => {
         if (index !== null) {
           const newEntries = [...chargerEntries];
-          newEntries[index][e.target.name] = e.target.value;
+          const name = e.target.name as keyof ChargerEntry;
+          newEntries[index][name] = e.target.value;
           setChargerEntries(newEntries);
         } else {
           setFormData({ ...formData, [e.target.name]: e.target.value });
