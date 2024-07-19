@@ -1,6 +1,30 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/router';
 import { fetchChargerTypes, postResults } from '../app/api';
+import {
+    Msform,
+    Fieldset,
+    Input,
+    Textarea,
+    Select,
+    ActionButton,
+    SecondaryButton,
+    RemoveButton,
+    FsHeader,
+    FsTitle,
+    FsSecondTitle,
+    FsSubtitle,
+    Progressbar,
+    ProgressbarItem,
+    ChargerSelectionContainer,
+    ChargerEntry,
+    Label,
+    ErrorMessage,
+    InvalidInput,
+    DisabledButton,
+  } from '../styles/myComponentStyles.ts';
+
+
 
 // Log the environment variable to ensure it's being picked up
 console.log('API_BASE_URL:', process.env.NEXT_PUBLIC_API_BASE_URL);
@@ -101,75 +125,75 @@ const MainForm = () => {
     
     return (
         <div>
-            <h1 className="fs-header">EV Cost Calculator</h1>
-            <form id="msform" onSubmit={handleSubmit}>
+            <FsHeader>EV Cost Calculator</FsHeader>
+            <Msform onSubmit={handleSubmit}>
                 {/* Conditional rendering for different form steps */}
                 {step === 1 && (
-                    <fieldset>
-                        <h2 className="fs-title">Vehicle Selection</h2>
-                        <input type="number" name="numVehicles" placeholder="Number of Vehicles" min="1" required value={formData.numVehicles} onChange={handleChange} />
-                        <input type="number" name="milesDrivenPerDay" placeholder="Miles Driven Per Day" min="1" step="any" required value={formData.milesDrivenPerDay} onChange={handleChange} />
-                        <input type="number" name="batterySize" step="any" placeholder="Vehicle Battery Size" min="1" required value={formData.batterySize} onChange={handleChange} />
-                        <input type="number" name="vehicleEfficiency" step="any" placeholder="Vehicle Efficiency" min="0.01" required value={formData.vehicleEfficiency} onChange={handleChange} />
-                        <button type="button" className="next action-button" onClick={nextStep}>Next</button>
-                    </fieldset>
+                    <Fieldset>
+                        <FsTitle className="fs-title">Vehicle Selection</FsTitle>
+                        <Input type="number" name="numVehicles" placeholder="Number of Vehicles" min="1" required value={formData.numVehicles} onChange={handleChange} />
+                        <Input type="number" name="milesDrivenPerDay" placeholder="Miles Driven Per Day" min="1" step="any" required value={formData.milesDrivenPerDay} onChange={handleChange} />
+                        <Input type="number" name="batterySize" step="any" placeholder="Vehicle Battery Size" min="1" required value={formData.batterySize} onChange={handleChange} />
+                        <Input type="number" name="vehicleEfficiency" step="any" placeholder="Vehicle Efficiency" min="0.01" required value={formData.vehicleEfficiency} onChange={handleChange} />
+                        <ActionButton type="button" className="next action-button" onClick={nextStep}>Next</ActionButton>
+                    </Fieldset>
                 )}
                 {step === 2 && (
-                    <fieldset>
-                        <h2 className="fs-title">Charging Behavior</h2>
-                        <input type="number" name="chargingHoursPerDay" min="1" max="24" placeholder="Charging Hours Per Day" required value={formData.chargingHoursPerDay} onChange={handleChange} />
-                        <input type="number" name="chargingDaysPerWeek" min="1" max="7" placeholder="Charging Days Per Week" required value={formData.chargingDaysPerWeek} onChange={handleChange} />
-                        <button type="button" className="previous action-button" onClick={prevStep}>Back</button>
-                        <button type="button" className="next action-button" onClick={nextStep}>Next</button>
-                    </fieldset>
+                    <Fieldset>
+                        <FsTitle className="fs-title">Charging Behavior</FsTitle>
+                        <Input type="number" name="chargingHoursPerDay" min="1" max="24" placeholder="Charging Hours Per Day" required value={formData.chargingHoursPerDay} onChange={handleChange} />
+                        <Input type="number" name="chargingDaysPerWeek" min="1" max="7" placeholder="Charging Days Per Week" required value={formData.chargingDaysPerWeek} onChange={handleChange} />
+                        <ActionButton type="button" className="previous action-button" onClick={prevStep}>Back</ActionButton>
+                        <ActionButton type="button" className="next action-button" onClick={nextStep}>Next</ActionButton>
+                    </Fieldset>
                 )}
                 {step === 3 && (
-                    <fieldset>
-                        <h2 className="fs-title">Charger Selection</h2>
-                        <div className="charger-selection-container" id="charger-container">
+                    <Fieldset>
+                        <FsTitle className="fs-title">Charger Selection</FsTitle>
+                        <ChargerSelectionContainer className="charger-selection-container" id="charger-container">
                             {chargerEntries.map((entry, index) => (
                                 <div key={index} className="charger-entry">
-                                    <select name="chargerType" onChange={e => handleChange(e, index)} value={entry.chargerType}>
+                                    <Select name="chargerType" onChange={e => handleChange(e, index)} value={entry.chargerType}>
                                         <option value="" disabled>-- Select Charger Type --</option>
                                         {chargerTypes.map((charger) => (
                                             <option key={charger.charger_type_id} value={charger.charger_type_id}>
                                                 {charger.type} - {charger.rating_kW} kW
                                             </option>
                                         ))}
-                                    </select>
-                                    <input type="number" name="chargerCount" min="1" placeholder="Count of Charger" required value={entry.chargerCount} onChange={e => handleChange(e, index)} />
+                                    </Select>
+                                    <Input type="number" name="chargerCount" min="1" placeholder="Count of Charger" required value={entry.chargerCount} onChange={e => handleChange(e, index)} />
                                     {chargerEntries.length > 1 && (
-                                        <button type="button" className='remove-button' onClick={() => removeCharger(index)}>Remove</button>
+                                        <RemoveButton type="button" className='remove-button' onClick={() => removeCharger(index)}>Remove</RemoveButton>
                                     )}
                                 </div>
                             ))}
-                        </div>
-                        <button type="button" className='secondary-button' onClick={addCharger}>Add Another Charger</button>
+                        </ChargerSelectionContainer>
+                        <SecondaryButton type="button" className='secondary-button' onClick={addCharger}>Add Another Charger</SecondaryButton>
                         <br></br>
-                        <button type="button" className="previous action-button" onClick={prevStep}>Back</button>
-                        <button type="button" className="next action-button" onClick={nextStep}>Next</button>
-                    </fieldset>
+                        <ActionButton type="button" className="previous action-button" onClick={prevStep}>Back</ActionButton>
+                        <ActionButton type="button" className="next action-button" onClick={nextStep}>Next</ActionButton>
+                    </Fieldset>
                 )}
                 {step === 4 && (
-                    <fieldset>
-                        <h2 className="fs-title">Time of Year</h2>
-                        <select name="season" value={formData.season} onChange={handleChange}>
+                    <Fieldset>
+                        <FsTitle className="fs-title">Time of Year</FsTitle>
+                        <Select name="season" value={formData.season} onChange={handleChange}>
                             <option value="" disabled>-- Select Time of Year --</option>
                             <option value="Summer">Summer</option>
                             <option value="Winter (March and April)">Winter (March and April)</option>
                             <option value="Winter (excluding March and April)">Winter (excluding March and April)</option>
-                        </select>
-                        <select name="timeOfDay" value={formData.timeOfDay} onChange={handleChange}>
+                        </Select>
+                        <Select name="timeOfDay" value={formData.timeOfDay} onChange={handleChange}>
                             <option value="" disabled>-- Select Charging Time of Day --</option>
                             <option value="SOP">Super Off-Peak</option>
                             <option value="Off-Peak">Off-Peak</option>
                             <option value="On-Peak">On-Peak</option>
-                        </select>
-                        <button type="button" className="previous action-button" onClick={prevStep}>Back</button>
-                        <button type="submit" className="submit action-button">Calculate</button>
-                    </fieldset>
+                        </Select>
+                        <ActionButton type="button" className="previous action-button" onClick={prevStep}>Back</ActionButton>
+                        <ActionButton type="submit">Calculate</ActionButton>
+                    </Fieldset>
                 )}
-            </form>
+            </Msform>
         </div>
     );
 };

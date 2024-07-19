@@ -1,10 +1,29 @@
-import React from 'react'
-import MainForm from './MainForm'; 
+import * as React from 'react';
+import type { NextPage } from 'next';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';import MainForm from './MainForm'; 
 
-export default function Page() {
+const Page: NextPage = () => {
     return (
-      <div>
-        <MainForm />
-      </div>
+      <Container maxWidth='lg'>
+      <Box
+        sx={{
+          my: 5,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Typography component='h1' color='primary'>
+          <div>
+            <MainForm />
+           </div>
+        </Typography>
+      </Box>
+    </Container>
     )
-  }
+};
+
+export default Page;
