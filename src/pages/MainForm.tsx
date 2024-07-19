@@ -22,7 +22,7 @@ import {
     ErrorMessage,
     InvalidInput,
     DisabledButton,
-  } from '../styles/myComponentStyles.ts';
+  } from '../styles/myComponentStyles';
 
 
 
