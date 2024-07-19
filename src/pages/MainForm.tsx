@@ -190,7 +190,7 @@ const MainForm = () => {
                             <option value="On-Peak">On-Peak</option>
                         </Select>
                         <ActionButton type="button" className="previous action-button" onClick={prevStep}>Back</ActionButton>
-                        <ActionButton type="submit">Calculate</ActionButton>
+                        <ActionButton type="submit" onClick={handleSubmit}>Calculate</ActionButton>
                     </Fieldset>
                 )}
             </Msform>

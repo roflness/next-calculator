@@ -6,10 +6,10 @@ import { blue } from '@mui/material/colors';
 const theme = createTheme({
   palette: {
     primary: {
-      main: blue.A400,
+      main: '#001ADB',
     },
     secondary: {
-      main: '#e3f2fd',
+      main: '#3074AF',
     },
   },
   typography: {
@@ -23,11 +23,6 @@ const theme = createTheme({
 
         /* basic reset */
         * {margin: 0; padding: 0;}
-
-        html {
-            height: 100%;
-            background: linear-gradient(rgba(48, 89, 147, 0.6), rgba(255, 255, 255, 0.6));
-        }
 
         body {
             font-family: Roboto, Arial, Verdana;
@@ -47,4 +42,3 @@ const theme = createTheme({
 });
 
 export default theme;
-
