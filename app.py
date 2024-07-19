@@ -4,7 +4,7 @@ from ev_cost_calculator import load_charger_configurations, get_charger_config_b
 import json
 import os
 
-app = Flask(__name__) 
+app = Flask(__name__, static_folder='out', static_url_path='')
 
 NEXT_PUBLIC_API_BASE_URL = os.getenv('NEXT_PUBLIC_API_BASE_URL', 'http://localhost:3000')
 
@@ -46,13 +46,14 @@ def charger_types():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# @app.route('/') 
+# @app.route('/') # this one works and shwos the welcome message
 # @cross_origin() # Enables CORS specifically for this route
 # def index(): 
 #     return "<h1>Welcome to our server !!</h1>" 
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
+@cross_origin()
 def index(path):
     if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
