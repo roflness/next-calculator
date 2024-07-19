@@ -4,7 +4,7 @@ from ev_cost_calculator import load_charger_configurations, get_charger_config_b
 import json
 import os
 
-app = Flask(__name__, static_folder='out', static_url_path='')
+app = Flask(__name__, static_folder='.next', static_url_path='')
 
 NEXT_PUBLIC_API_BASE_URL = os.getenv('NEXT_PUBLIC_API_BASE_URL', 'http://localhost:3000')
 
