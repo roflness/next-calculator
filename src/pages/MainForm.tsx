@@ -154,11 +154,13 @@ const MainForm = () => {
                     <fieldset>
                         <h2 className="fs-title">Time of Year</h2>
                         <select name="season" value={formData.season} onChange={handleChange}>
+                            <option value="" disabled>-- Select Time of Year --</option>
                             <option value="Summer">Summer</option>
                             <option value="Winter (March and April)">Winter (March and April)</option>
                             <option value="Winter (excluding March and April)">Winter (excluding March and April)</option>
                         </select>
                         <select name="timeOfDay" value={formData.timeOfDay} onChange={handleChange}>
+                            <option value="" disabled>-- Select Charging Time of Day --</option>
                             <option value="SOP">Super Off-Peak</option>
                             <option value="Off-Peak">Off-Peak</option>
                             <option value="On-Peak">On-Peak</option>

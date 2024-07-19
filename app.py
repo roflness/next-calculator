@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from ev_cost_calculator import load_charger_configurations, get_charger_config_by_id, calculate_charger_throughput_costs, calculate_charging_costs, calculate_ev_cost, calculate_ghg_reduction, calculate_ice_cost, calculate_monthly_charger_throughput_v2, calculate_monthly_costs, calculate_savings, calculate_total_charger_output, calculate_total_costs, calculate_total_costs_weekly, calculate_weekly_charger_throughput, get_basic_service_fee, get_season_config, get_subscription_fee, get_usage_basic_service_fee, get_usage_subscription_fee, is_charging_sufficient_v2
 import json
 import os
@@ -32,6 +32,7 @@ ice_efficiency = ice_variables['ice_efficiency']
 @app.route('/', defaults={'path': ''})
 
 @app.route('/api/charger_types', methods=['GET'])
+@cross_origin() # Enables CORS specifically for this route
 def charger_types():
     try:
         return jsonify(charger_type_config)
@@ -40,8 +41,10 @@ def charger_types():
 
 @app.route('/api/hello') 
 def index(): return 'Hello from Flask!' 
+@cross_origin() # Enables CORS specifically for this route
 
 @app.route('/api/results', methods=['POST'])
+@cross_origin() # Enables CORS specifically for this route
 def handle_results():
     data = request.get_json()
 
