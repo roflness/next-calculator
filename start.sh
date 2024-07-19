@@ -4,4 +4,4 @@
 python3 ./app.py &
 
 # Start the Next.js application
-npm run start
+npm run start -p $PORT

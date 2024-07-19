@@ -141,4 +141,5 @@ def handle_results():
 
 
 if __name__ == '__main__':
-    app.run()
+    port = int(os.environ.get('PORT', 5000))  # Use port 5000 if PORT not set
+    app.run(host='0.0.0.0', port=port)
