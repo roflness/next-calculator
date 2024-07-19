@@ -5,8 +5,6 @@
   "scripts": {
     "magic": "concurrently \"npm run server\" \"npm run dev\"",
     "server": "python3 ./app.py",
-
-    
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p $PORT",
