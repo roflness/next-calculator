@@ -123,7 +123,7 @@ const Results = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {results.chargers.map((charger: ChargerType, index: number) => (
+              {results.chargers?.map((charger: ChargerType, index: number) => (
                 <TableRow key={index}>
                   <TableCell>{charger.type}</TableCell>
                   <TableCell>{charger.rating_kW}</TableCell>
