@@ -1,1 +1,1 @@
-web: npm run magic
+web: gunicorn app:app
