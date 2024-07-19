@@ -3,13 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "magic": "concurrently \"npm run server\" \"npm run dev\"",
-    "server": "python3 ./app.py",
-    "dev": "next dev",
+    "dev": "next",
     "build": "next build",
-    "start": "next start -p $PORT",
-    "lint": "next lint",
-    "heroku-postbuild": "npm run build"
+    "start": "next start -p $PORT"
   },
   "dependencies": {
     "axios": "^1.7.2",
