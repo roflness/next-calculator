@@ -5,7 +5,13 @@ import json
 import os
 
 app = Flask(__name__) 
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+NEXT_PUBLIC_API_BASE_URL = os.getenv('NEXT_PUBLIC_API_BASE_URL', 'http://localhost:3000')
+
+if os.getenv('FLASK_ENV') == 'development':
+    CORS(app)  # Allow all domains for development
+else:
+    CORS(app, resources={r"/api/*": {"origins": NEXT_PUBLIC_API_BASE_URL}})
 
 load_charger_configurations()
 # Load your configuration file
@@ -142,5 +148,5 @@ def handle_results():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))  # Use port 5000 if PORT not set
+    port = int(os.environ.get('PORT', 5001))  # Use port 5000 if PORT not set
     app.run(host='0.0.0.0', port=port)
