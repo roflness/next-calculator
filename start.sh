@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Start the Python server in the background
-echo "Starting Flask app..."
-python3 ./app.py &
+# Start Gunicorn to serve the Flask app
+echo "Starting Gunicorn to serve the Flask app..."
+gunicorn --bind 0.0.0.0:$PORT app:app &
 
-# Start the Next.js application
-echo "Starting Next.js app..."
-npm run serve
+echo "Starting Next.js server..."
+npm run start

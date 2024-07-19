@@ -86,9 +86,9 @@ const Results = () => {
             <p><span className="fs-title">Gasoline Used (gallons): </span>{results?.ghg_reduction_result?.['Gasoline Used (gallons)'] ?? 'N/A'}</p>
             <p><span className="fs-title">Electricity Used (kW): </span>{results?.ghg_reduction_result?.['Electricity Used (kWh)'] ?? 'N/A'}</p>
             <br/>
-            <p><span className="fs-title">Gasoline Fuel Usage GHGs (MT CO2): </span>{safeToFixed(results?.ghg_reduction_result?.['Gasoline Fuel Usage GHGs (MT CO2)'] ?? 'N/A')}</p>
-            <p><span className="fs-title">Elec Fuel Usage GHGs (MT CO2): </span>{safeToFixed(results?.ghg_reduction_result?.['Electric Fuel Usage GHGs (MT CO2)'] ?? 'N/A')}</p>
-            <p><span className="fs-title">Net GHG Reductions (MT CO2): </span>{safeToFixed(results?.ghg_reduction_result?.['Net GHG Reductions (MT CO2)'] ?? 'N/A')}</p>
+            <p><span className="fs-title">Gasoline Fuel Usage GHGs (MT CO2): </span>{results?.ghg_reduction_result?.['Gasoline Fuel Usage GHGs (MT CO2)'] ?? 'N/A'}</p>
+            <p><span className="fs-title">Elec Fuel Usage GHGs (MT CO2): </span>{results?.ghg_reduction_result?.['Electric Fuel Usage GHGs (MT CO2)'] ?? 'N/A'}</p>
+            <p><span className="fs-title">Net GHG Reductions (MT CO2): </span>{results?.ghg_reduction_result?.['Net GHG Reductions (MT CO2)'] ?? 'N/A'}</p>
             <br/>
             <p>
                 <Link href="/" className="secondary-button">Calculate Again</Link>
