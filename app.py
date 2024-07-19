@@ -58,12 +58,10 @@ def handle_results():
     charging_days_per_week = int(data.get('chargingDaysPerWeek', 1))
     season = data.get('season', 'Summer')
     time_of_day = data.get('timeOfDay', 'Off-Peak')
-    # Log the charger data
-    # logging.debug("Chargers received: %s", chargers)
 
     chargers = data.get('chargers', [])
     processed_chargers = []
-    # chargers = []
+
     for charger in chargers:
         try:
             charger_type_id = int(charger.get('chargerType', 0))  # Use get() with default value
@@ -96,6 +94,7 @@ def handle_results():
 
     kwh_charger_output_daily, kwh_charger_output_weekly = calculate_weekly_charger_throughput(processed_chargers, charging_hours_per_day, charging_days_per_week)
     kwh_charger_output_monthly, load_kw, max_subscription_threshold, max_subscription_level, max_subscription_fee = calculate_monthly_charger_throughput_v2(kwh_charger_output_daily, charging_days_per_week, processed_chargers)
+    charger_output_costs_weekly, charger_output_costs_monthly = calculate_charger_throughput_costs(kwh_charger_output_weekly, kwh_charger_output_monthly, season, time_of_day, load_kw)
 
     max_load_kw_basic_service_fee = get_basic_service_fee(load_kw)
 
@@ -138,7 +137,9 @@ def handle_results():
         "weekly_ev_cost": weekly_ev_cost,
         "charging_days_per_week": charging_days_per_week,
         "miles_driven_per_day": miles_driven_per_day,
-        "monthly_ice_cost_one_vehicle": monthly_ice_cost_one_vehicle
+        "monthly_ice_cost_one_vehicle": monthly_ice_cost_one_vehicle,
+        "charger_output_costs_monthly": charger_output_costs_monthly,
+        "charger_output_costs_weekly": charger_output_costs_weekly
     }
 
     try:

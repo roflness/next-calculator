@@ -56,6 +56,8 @@ interface Data {
   ice_efficiency: number;
   weekly_ev_cost: number;
   ghg_reduction_result: GHGReductionResult;
+  charger_output_costs_monthly: number;
+  charger_output_costs_weekly: number;
   chargers: ChargerType[]; // Add this field to the interface
 }
 
@@ -93,6 +95,7 @@ const Results = () => {
       <p><span className="fs-title">Max Load kW per hour: </span>{safeToFixed(results.load_kw)}</p>
       <p><span className="fs-title">Max Subscription Level: {results.max_subscription_level} - {results.max_subscription_threshold} kW with a subscription charge of ${safeToFixed(results.max_subscription_fee)}</span></p>
       <p><span className="fs-title">Basic Service Fee based with max load of {safeToFixed(results.load_kw)} kW: </span>${safeToFixed(results.max_load_kw_basic_service_fee)}</p>
+      <p><span className="fs-title">Monthly Charger Max Output Costs with consumption and subscription fees: </span>${safeToFixed(results.charger_output_costs_monthly)}</p>
       <br />
       <h2 className="fs-second-title">GHG reductions as difference between gasoline and electric GHGs</h2>
       <p><span className="fs-title">Miles Driven: </span>{results?.ghg_reduction_result?.['Miles Driven'] ?? 'N/A'}</p>
