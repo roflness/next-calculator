@@ -36,6 +36,7 @@ interface Data {
   subscription_level: string;
   subscription_threshold: number;
   subscription_fee: number;
+  usage_load_kw_basic_service_fee: number;
   usage_subscription_level: string;
   usage_subscription_threshold: number;
   usage_subscription_fee: number;
