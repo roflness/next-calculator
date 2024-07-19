@@ -30,7 +30,7 @@ gas_price = ice_variables['gas_price']
 ice_efficiency = ice_variables['ice_efficiency']
 
 # @app.route('/', defaults={'path': ''})
-@app.route('/', defaults={'path': ''})
+# @app.route('/', defaults={'path': ''})
 # @app.route('/<path:path>')
 # def serve(path):
 #     if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
@@ -46,10 +46,18 @@ def charger_types():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/hello') 
-@cross_origin() # Enables CORS specifically for this route
-def index(): 
-    return "<h1>Welcome to our server !!</h1>" 
+# @app.route('/') 
+# @cross_origin() # Enables CORS specifically for this route
+# def index(): 
+#     return "<h1>Welcome to our server !!</h1>" 
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def index(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/api/results', methods=['POST'])
 @cross_origin() # Enables CORS specifically for this route
