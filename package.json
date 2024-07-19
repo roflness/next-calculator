@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "concurrently \"npm run next\" \"npm run flask\"",
-    "next": "next start",
-    "flask": "gunicorn app:app",
+    "magic": "concurrently \"npm run server\" \"npm run dev\"",
+    "server": "python3 ./app.py",
+
+    
+    "dev": "next dev",
     "build": "next build",
-    "heroku-postbuild": "npm run build",
-    "lint": "next lint"
+    "start": "next start -p $PORT",
+    "lint": "next lint",
+    "heroku-postbuild": "npm run build"
   },
   "dependencies": {
     "axios": "^1.7.2",
