@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "cross-env PORT=3000 concurrently \"npm run next\" \"npm run flask\"",
-    "next": "cross-env PORT=$PORT next start",
+    "start": "concurrently \"npm run next\" \"npm run flask\"",
+    "next": "next start",
     "flask": "gunicorn app:app",
     "build": "next build",
     "heroku-postbuild": "npm run build",

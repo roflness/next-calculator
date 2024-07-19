@@ -26,7 +26,10 @@ ice_efficiency = ice_variables['ice_efficiency']
 
 @app.route('/api/charger_types', methods=['GET'])
 def charger_types():
-    return jsonify(charger_type_config)
+    try:
+        return jsonify(charger_type_config)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/hello') 
 def index(): return 'Hello from Flask!' 
