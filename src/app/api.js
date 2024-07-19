@@ -3,7 +3,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 // Fetch greeting message from the backend
 export const fetchGreeting = async () => {
     try {
-        const response = await fetch(`${BASE_URL}/`);
+        const response = await fetch(`${BASE_URL}/api/hello`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

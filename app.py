@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS, cross_origin
 from ev_cost_calculator import load_charger_configurations, get_charger_config_by_id, calculate_charger_throughput_costs, calculate_charging_costs, calculate_ev_cost, calculate_ghg_reduction, calculate_ice_cost, calculate_monthly_charger_throughput_v2, calculate_monthly_costs, calculate_savings, calculate_total_charger_output, calculate_total_costs, calculate_total_costs_weekly, calculate_weekly_charger_throughput, get_basic_service_fee, get_season_config, get_subscription_fee, get_usage_basic_service_fee, get_usage_subscription_fee, is_charging_sufficient_v2
 import json
@@ -30,6 +30,10 @@ gas_price = ice_variables['gas_price']
 ice_efficiency = ice_variables['ice_efficiency']
 
 # @app.route('/', defaults={'path': ''})
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    return send_from_directory('frontend/out', path)
 
 @app.route('/api/charger_types', methods=['GET'])
 @cross_origin() # Enables CORS specifically for this route
@@ -39,11 +43,10 @@ def charger_types():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/') 
+@app.route('/api/hello') 
 @cross_origin() # Enables CORS specifically for this route
 def index(): 
     return "<h1>Welcome to our server !!</h1>" 
-
 
 @app.route('/api/results', methods=['POST'])
 @cross_origin() # Enables CORS specifically for this route
