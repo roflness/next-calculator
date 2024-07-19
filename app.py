@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from ev_cost_calculator import load_charger_configurations, get_charger_config_by_id, calculate_charger_throughput_costs, calculate_charging_costs, calculate_ev_cost, calculate_ghg_reduction, calculate_ice_cost, calculate_monthly_charger_throughput_v2, calculate_monthly_costs, calculate_savings, calculate_total_charger_output, calculate_total_costs, calculate_total_costs_weekly, calculate_weekly_charger_throughput, get_basic_service_fee, get_season_config, get_subscription_fee, get_usage_basic_service_fee, get_usage_subscription_fee, is_charging_sufficient_v2
 import json
+import os
 
 app = Flask(__name__) 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
