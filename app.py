@@ -33,8 +33,11 @@ ice_efficiency = ice_variables['ice_efficiency']
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
-    return send_from_directory('frontend/out', path)
-
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+    
 @app.route('/api/charger_types', methods=['GET'])
 @cross_origin() # Enables CORS specifically for this route
 def charger_types():
