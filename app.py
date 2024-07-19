@@ -39,9 +39,11 @@ def charger_types():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/hello') 
-def index(): return 'Hello from Flask!' 
+@app.route('/') 
 @cross_origin() # Enables CORS specifically for this route
+def index(): 
+    return "<h1>Welcome to our server !!</h1>" 
+
 
 @app.route('/api/results', methods=['POST'])
 @cross_origin() # Enables CORS specifically for this route
