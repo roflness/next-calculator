@@ -29,7 +29,7 @@ ice_variables = config_data['ice_variables']
 gas_price = ice_variables['gas_price']
 ice_efficiency = ice_variables['ice_efficiency']
 
-@app.route('/', defaults={'path': ''})
+# @app.route('/', defaults={'path': ''})
 
 @app.route('/api/charger_types', methods=['GET'])
 @cross_origin() # Enables CORS specifically for this route
