@@ -19,6 +19,8 @@ with open('./ev_config.json', 'r') as config_file:
     config_data = json.load(config_file)
     charger_type_config = config_data['charger_types']
 
+time_of_use_rates = config_data['time_of_use_rates']
+
 ghg_variables = config_data['ghg_variables']
 gas_mj_per_gal = ghg_variables['gas_mj_per_gal']
 gas_unadjusted_ci = ghg_variables['gas_unadjusted_ci']
@@ -41,6 +43,25 @@ def charger_types():
 @app.route('/')
 def index():
     return app.send_static_file('index.html')
+
+@app.route('/api/calculate', methods=['POST'])
+def calculate():
+    data = request.get_json()
+    season = data.get('season')
+    time_of_day = data.get('timeOfDay')
+    day_type = data.get('dayType')  # Expecting "Weekday" or "Weekend"
+
+    # Calculate consumption fee
+    rates = time_of_use_rates.get(season, {}).get(day_type, {}).get(time_of_day, {})
+    consumption_fee = rates.get('rate', None)
+    
+    if consumption_fee is None:
+        return jsonify({'error': 'Invalid season, time of day, or day type'}), 400
+    
+    # Perform your calculations here using consumption_fee
+    result = {'consumption_fee': consumption_fee}  # Example response
+    
+    return jsonify(result)
 
 @app.route('/api/results', methods=['POST'])
 @cross_origin() # Enables CORS specifically for this route

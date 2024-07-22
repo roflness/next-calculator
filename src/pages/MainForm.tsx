@@ -1,5 +1,6 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/router';
+import FormStepper from '../components/shared/FormStepper.tsx';
 import { fetchChargerTypes, postResults } from '../app/api';
 import {
     Msform,
@@ -51,7 +52,10 @@ type FormData = {
     rating_kW: number;
   };
 
+const steps = ['Vehicle Selection', 'Charging Behavior', 'Charger Selection', 'Time of Year'];
+
 const MainForm = () => {
+    const [activeStep, setActiveStep] = useState(0);
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
@@ -65,8 +69,17 @@ const MainForm = () => {
         timeOfDay: ''
     });
 
+    const handleNext = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      };
+    
+      const handleBack = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+      };
+    
+
     const [chargerEntries, setChargerEntries] = useState<ChargerEntry[]>([{ chargerType: '', chargerCount: '' }]);
-  const [chargerTypes, setChargerTypes] = useState<ChargerType[]>([]);
+    const [chargerTypes, setChargerTypes] = useState<ChargerType[]>([]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -100,8 +113,8 @@ const MainForm = () => {
         setChargerEntries(newEntries);
       };
 
-    const nextStep = () => setStep(step + 1);
-    const prevStep = () => setStep(step > 1 ? step - 1 : step);
+    // const nextStep = () => setStep(step + 1);
+    // const prevStep = () => setStep(step > 1 ? step - 1 : step);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -127,27 +140,27 @@ const MainForm = () => {
         <div>
             <FsHeader>EV Cost Calculator</FsHeader>
             <Msform onSubmit={handleSubmit}>
-                {/* Conditional rendering for different form steps */}
-                {step === 1 && (
+                <FormStepper steps={steps} activeStep={activeStep} />
+                {activeStep === 0 && (
                     <Fieldset>
                         <FsTitle className="fs-title">Vehicle Selection</FsTitle>
                         <Input type="number" name="numVehicles" placeholder="Number of Vehicles" min="1" required value={formData.numVehicles} onChange={handleChange} />
                         <Input type="number" name="milesDrivenPerDay" placeholder="Miles Driven Per Day" min="1" step="any" required value={formData.milesDrivenPerDay} onChange={handleChange} />
                         <Input type="number" name="batterySize" step="any" placeholder="Vehicle Battery Size" min="1" required value={formData.batterySize} onChange={handleChange} />
                         <Input type="number" name="vehicleEfficiency" step="any" placeholder="Vehicle Efficiency" min="0.01" required value={formData.vehicleEfficiency} onChange={handleChange} />
-                        <ActionButton type="button" className="next action-button" onClick={nextStep}>Next</ActionButton>
+                        <ActionButton type="button" className="next action-button" onClick={() => setActiveStep(1)}>Next</ActionButton>
                     </Fieldset>
                 )}
-                {step === 2 && (
+                {activeStep === 1 && (
                     <Fieldset>
                         <FsTitle className="fs-title">Charging Behavior</FsTitle>
                         <Input type="number" name="chargingHoursPerDay" min="1" max="24" placeholder="Charging Hours Per Day" required value={formData.chargingHoursPerDay} onChange={handleChange} />
                         <Input type="number" name="chargingDaysPerWeek" min="1" max="7" placeholder="Charging Days Per Week" required value={formData.chargingDaysPerWeek} onChange={handleChange} />
-                        <ActionButton type="button" className="previous action-button" onClick={prevStep}>Back</ActionButton>
-                        <ActionButton type="button" className="next action-button" onClick={nextStep}>Next</ActionButton>
+                        <ActionButton type="button" className="previous action-button" onClick={() => setActiveStep(0)}>Back</ActionButton>
+                        <ActionButton type="button" className="next action-button" onClick={() => setActiveStep(2)}>Next</ActionButton>
                     </Fieldset>
                 )}
-                {step === 3 && (
+                {activeStep === 2 && (
                     <Fieldset>
                         <FsTitle className="fs-title">Charger Selection</FsTitle>
                         <ChargerSelectionContainer className="charger-selection-container" id="charger-container">
@@ -170,11 +183,11 @@ const MainForm = () => {
                         </ChargerSelectionContainer>
                         <SecondaryButton type="button" className='secondary-button' onClick={addCharger}>Add Another Charger</SecondaryButton>
                         <br></br>
-                        <ActionButton type="button" className="previous action-button" onClick={prevStep}>Back</ActionButton>
-                        <ActionButton type="button" className="next action-button" onClick={nextStep}>Next</ActionButton>
+                        <ActionButton type="button" className="previous action-button" onClick={() => setActiveStep(1)}>Back</ActionButton>
+                        <ActionButton type="button" className="next action-button" onClick={() => setActiveStep(3)}>Next</ActionButton>
                     </Fieldset>
                 )}
-                {step === 4 && (
+                {activeStep === 3 && (
                     <Fieldset>
                         <FsTitle className="fs-title">Time of Year</FsTitle>
                         <Select name="season" value={formData.season} onChange={handleChange}>
@@ -189,7 +202,7 @@ const MainForm = () => {
                             <option value="Off-Peak">Off-Peak</option>
                             <option value="On-Peak">On-Peak</option>
                         </Select>
-                        <ActionButton type="button" className="previous action-button" onClick={prevStep}>Back</ActionButton>
+                        <ActionButton type="button" className="previous action-button" onClick={() => setActiveStep(2)}>Back</ActionButton>
                         <ActionButton type="submit" onClick={handleSubmit}>Calculate</ActionButton>
                     </Fieldset>
                 )}

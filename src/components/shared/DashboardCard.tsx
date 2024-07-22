@@ -9,7 +9,7 @@ type Props = {
   cardheading?: string | JSX.Element;
   headtitle?: string | JSX.Element;
   headsubtitle?: string | JSX.Element;
-  children?: JSX.Element;
+  children?: React.ReactNode; // Updated to allow multiple children
   middlecontent?: string | JSX.Element;
 };
 
@@ -58,7 +58,9 @@ const DashboardCard = ({
             </Stack>
           ) : null}
 
-          {children}
+          <Box>
+            {children}
+          </Box>
         </CardContent>
       )}
 

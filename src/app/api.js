@@ -14,6 +14,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 //     }
 // };
 
+
+
 // Fetch charger types from the backend
 export const fetchChargerTypes = async () => {
     try {
@@ -47,3 +49,24 @@ export const postResults = async (payload) => {
       return null; // Return null or handle the error as needed
     }
   };
+
+// Post form submission rates for results
+export const postRates = async (payload) => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/calculate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorResponse.error || 'Unknown error'}`);
+    }
+    return await response.json(); // Return the data from the server
+  } catch (error) {
+    console.error('Failed to post data:', error);
+    return { error: error.message }; // Return the error message
+  }
+};

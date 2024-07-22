@@ -28,6 +28,7 @@ const theme = createTheme({
             font-family: Roboto, Arial, Verdana;
             text-align: center;
             padding: 20px 30px;
+            background-color: #F0F5FF;
         }
 
         /* Add other global styles here */

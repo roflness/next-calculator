@@ -180,20 +180,21 @@ export const Msform = styled(Box)(({ theme }) => ({
     },
   }));
   
-  export const Progressbar = styled(List)(({ theme }) => ({
+  export const Progressbar = styled('div')({
     marginBottom: '30px',
     overflow: 'hidden',
     counterReset: 'step',
-  }));
+  });
   
-  export const ProgressbarItem = styled(ListItem)(({ theme }) => ({
+  export const ProgressbarItem = styled('div')({
     listStyleType: 'none',
-    color: 'white',
+    color: '#5D627E',
     textTransform: 'uppercase',
     fontSize: '9px',
     width: '25%',
     float: 'left',
     position: 'relative',
+  
     '&:before': {
       content: 'counter(step)',
       counterIncrement: 'step',
@@ -201,11 +202,12 @@ export const Msform = styled(Box)(({ theme }) => ({
       lineHeight: '20px',
       display: 'block',
       fontSize: '10px',
-      color: '#333',
-      background: 'white',
+      color: '#FFFFFF',
+      background: '#D9D9D9',
       borderRadius: '3px',
       margin: '0 auto 5px auto',
     },
+  
     '&:after': {
       content: '""',
       width: '100%',
@@ -216,20 +218,16 @@ export const Msform = styled(Box)(({ theme }) => ({
       top: '9px',
       zIndex: '-1',
     },
-    '&:first-child:after': {
+  
+    '&:first-of-type:after': {
       content: 'none',
     },
+  
     '&.active:before, &.active:after': {
-      background: '#031281',
+      background: '#5D627E',
       color: 'white',
     },
-    [theme.breakpoints.down('md')]: {
-      fontSize: '8px',
-    },
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '7px',
-    },
-  }));
+  });
   
   export const ChargerSelectionContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
