@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/router';
-import FormStepper from '../components/shared/FormStepper.tsx';
+import FormStepper from '../components/shared/FormStepper';
 import { fetchChargerTypes, postResults } from '../app/api';
 import {
     Msform,
