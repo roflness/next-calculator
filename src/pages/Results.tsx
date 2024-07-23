@@ -148,7 +148,7 @@ const Results = () => {
               iceCost={results.monthly_ice_cost}
               basicServiceFee={results.usage_load_kw_basic_service_fee}
               subscriptionFee={results.usage_subscription_fee}
-              consumptionCost={results.monthly_ev_cost - results.usage_load_kw_basic_service_fee - results.usage_load_kw_basic_service_fee}/>
+              consumptionCost={results.monthly_ev_cost - results.usage_load_kw_basic_service_fee - results.usage_load_kw_basic_service_fee}
             />
           </DashboardCard>
         </Grid>
