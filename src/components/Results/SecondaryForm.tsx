@@ -30,7 +30,8 @@ type FormInputs = {
     chargingDaysPerWeek: string;
     season: string;
     timeOfDay: string;
-    chargers: ChargerEntry[];
+    // chargers: ChargerEntry[];
+    chargerEntries: ChargerEntry[];
   };
   
   type ChargerEntry = {
@@ -48,12 +49,27 @@ const steps = ['Vehicle Selection', 'Charging Behavior', 'Charger Selection', 'T
 
 const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
     // const [activeStep, setActiveStep] = useState(0);
-    const router = useRouter();
+    // const router = useRouter();
     // const [step, setStep] = useState(1);
-    const [localFormData, setLocalFormData] = useState<FormInputs>(formData);
+    // const [localFormData, setLocalFormData] = useState<FormInputs>(formData);
     // const [formData, setFormData] = useState(
         
     // );
+
+    const router = useRouter();
+    const [localFormData, setLocalFormData] = useState<FormInputs>(formData);
+    const [chargerEntries, setChargerEntries] = useState<ChargerEntry[]>(formData.chargerEntries || [{ chargerType: '', chargerCount: '' }]);
+    const [chargerTypes, setChargerTypes] = useState<ChargerType[]>([]);
+    // const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+    useEffect(() => {
+        const loadChargerTypes = async () => {
+            const chargers = await fetchChargerTypes();
+            setChargerTypes(chargers);
+        };
+        loadChargerTypes();
+        validateForm();
+    }, []);
 
     const validateNumVehicles = (value: string) => {
         const numValue = parseInt(value, 10);
@@ -104,8 +120,8 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
       };
     
     
-    const [chargerEntries, setChargerEntries] = useState<ChargerEntry[]>(formData.chargers || [{ chargerType: '', chargerCount: '' }]);  
-    const [chargerTypes, setChargerTypes] = useState<ChargerType[]>([]);
+    // const [chargerEntries, setChargerEntries] = useState<ChargerEntry[]>(formData.chargers || [{ chargerType: '', chargerCount: '' }]);  
+    // const [chargerTypes, setChargerTypes] = useState<ChargerType[]>([]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -134,6 +150,18 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
           validateInput(e.target.name, e.target.value);
         //   setErrors({ ...errors, [name]: validationError });
         }
+      };
+
+      const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setLocalFormData({ ...localFormData, [name]: value });
+        validateInput(name, value);
+      };
+      
+      const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setLocalFormData({ ...localFormData, [name]: value });
+        validateInput(name, value);
       };
     
       const handleBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -189,8 +217,14 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
       };
-    
-    
+
+    const handleChargerEntryChange = (index: number, field: keyof ChargerEntry, value: string) => {
+        const newEntries = [...chargerEntries];
+        newEntries[index][field] = value;
+        setChargerEntries(newEntries);
+        setLocalFormData({ ...localFormData, chargerEntries: newEntries });
+    };
+
     const addCharger = () => {
         setChargerEntries([...chargerEntries, { chargerType: '', chargerCount: '' }]);
     };
@@ -233,10 +267,9 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
             type="number"
             name="numVehicles"
             label="Number of Vehicles"
-            min="1"
             required
             value={localFormData.numVehicles}
-            onChange={handleChange}
+            onChange={handleInputChange}
             onBlur={handleBlur}
           />
           {errors.numVehicles && <p style={{ color: 'red' }}>{errors.numVehicles}</p>}
@@ -244,35 +277,30 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
             type="number"
             name="milesDrivenPerDay"
             label="Miles Driven Per Day"
-            min="1"
             step="any"
             required
             value={localFormData.milesDrivenPerDay}
-            onChange={handleChange}
+            onChange={handleInputChange}
             onBlur={handleBlur}
           />
           {errors.milesDrivenPerDay && <p style={{ color: 'red' }}>{errors.milesDrivenPerDay}</p>}
           <StyledTextField2
             type="number"
             name="batterySize"
-            step="any"
             label="Vehicle Battery Size"
-            min="1"
             required
             value={localFormData.batterySize}
-            onChange={handleChange}
+            onChange={handleInputChange}
             onBlur={handleBlur}
           />
           {errors.batterySize && <p style={{ color: 'red' }}>{errors.batterySize}</p>}
           <StyledTextField2
             type="number"
             name="vehicleEfficiency"
-            step="any"
             label="Vehicle Efficiency"
-            min="0.01"
             required
             value={localFormData.vehicleEfficiency}
-            onChange={handleChange}
+            onChange={handleInputChange}
             onBlur={handleBlur}
           />
           {errors.vehicleEfficiency && <p style={{ color: 'red' }}>{errors.vehicleEfficiency}</p>}
@@ -280,48 +308,48 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
           <StyledTextField2
             type="number"
             name="chargingHoursPerDay"
-            min="1"
-            max="24"
+            // min="1"
+            // max="24"
             label="Charging Hours Per Day"
             required
             value={localFormData.chargingHoursPerDay}
-            onChange={handleChange}
+            onChange={handleInputChange}
             onBlur={handleBlur}
           />
           {errors.chargingHoursPerDay && <p style={{ color: 'red' }}>{errors.chargingHoursPerDay}</p>}
           <StyledTextField2
             type="number"
             name="chargingDaysPerWeek"
-            min="1"
-            max="7"
+            // min="1"
+            // max="7"
             label="Charging Days Per Week"
             required
             value={localFormData.chargingDaysPerWeek}
-            onChange={handleChange}
+            onChange={handleInputChange}
             onBlur={handleBlur}
           />
           {errors.chargingDaysPerWeek && <p style={{ color: 'red' }}>{errors.chargingDaysPerWeek}</p>}
 
-                    <FsTitle className="fs-title">Charger Selection</FsTitle>
-                    <ChargerSelectionContainer className="charger-selection-container" id="charger-container">
-                        {chargerEntries.map((entry, index) => (
-                            <div key={index} className="charger-entry">
-                                <Select name="chargerType" onChange={e => handleChange(e, index)} value={entry.chargerType}>
-                                    <option value="" disabled>-- Select Charger Type --</option>
-                                    {chargerTypes.map((charger) => (
-                                        <option key={charger.charger_type_id} value={charger.charger_type_id}>
-                                            {charger.type} - {charger.rating_kW} kW
-                                        </option>
-                                    ))}
-                                </Select>
-                                <StyledTextField2 type="number" name="chargerCount" min="1" label="Count of Charger" required value={entry.chargerCount} onChange={e => handleChange(e, index)} />
-                                {chargerEntries.length > 1 && (
-                                    <RemoveButton type="button" className='remove-button' onClick={() => removeCharger(index)}>Remove</RemoveButton>
-                                )}
-                            </div>
-                        ))}
-                    </ChargerSelectionContainer>
-                    <SecondaryButton type="button" className='secondary-button' onClick={addCharger}>Add Another Charger</SecondaryButton>
+          <FsTitle className="fs-title">Charger Selection</FsTitle>
+                <ChargerSelectionContainer className="charger-selection-container" id="charger-container">
+                            {chargerEntries.map((chargerEntries, index) => (
+                                <div key={index} className="charger-entry">
+                                    <Select name="chargerType" onChange={e => handleChange(e, index)} value={chargerEntries.chargerType}>
+                                        <option value="" disabled>-- Select Charger Type --</option>
+                                        {chargerTypes.map((charger) => (
+                                            <option key={charger.charger_type_id} value={charger.charger_type_id}>
+                                                {charger.type} - {charger.rating_kW} kW
+                                            </option>
+                                        ))}
+                                    </Select>
+                                    <StyledTextField2 type="number" name="chargerCount" label="Count of Charger" required value={chargerEntries.chargerCount} onChange={e => handleChange(e, index)} />
+                                    {chargerEntries.length > 1 && (
+                                        <RemoveButton type="button" className='remove-button' onClick={() => removeCharger(index)}>Remove</RemoveButton>
+                                    )}
+                                </div>
+                            ))}
+                        </ChargerSelectionContainer>
+                        <SecondaryButton type="button" className='secondary-button' onClick={addCharger}>Add Another Charger</SecondaryButton>
                     <br></br>
 
                     <FsTitle className="fs-title">Time of Year</FsTitle>
