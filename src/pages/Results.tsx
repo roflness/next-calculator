@@ -79,7 +79,7 @@ interface FormData {
   season: string;
   timeOfDay: string;
   chargers: ChargerType[];
-  }
+}
 
 const Results = () => {
   const router = useRouter();
@@ -99,7 +99,7 @@ const Results = () => {
     return value !== undefined && value !== null ? value.toFixed(decimals) : 'N/A';
   };
 
-    // Calculate the breakdown for optimal charging
+  // Calculate the breakdown for optimal charging
   const optimalCharging = {
     basicServiceFee: results.basic_service_fee,
     subscriptionFee: results.usage_subscription_fee,
@@ -117,7 +117,7 @@ const Results = () => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar isSidebarOpen={isSidebarOpen} onSidebarClose={() => setSidebarOpen(false)} isMobileSidebarOpen={false} formData={initialFormData}/>
+      <Sidebar isSidebarOpen={isSidebarOpen} onSidebarClose={() => setSidebarOpen(false)} isMobileSidebarOpen={false} formData={initialFormData} />
       <Box sx={{ width: isSidebarOpen ? '80%' : '100%', p: 3 }}>
         <Typography variant="h4" gutterBottom>Results</Typography>
         <Grid container spacing={2}>
@@ -141,13 +141,13 @@ const Results = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                      <TableRow>
-                        <TableCell>{safeToWhole(results.num_vehicles)}</TableCell>
-                        <TableCell>{safeToWhole(results.miles_driven_per_day)}</TableCell>
-                        <TableCell>{safeToFixed(results.charging_hours_needed_daily)}</TableCell>
-                        <TableCell>{safeToFixed(results.total_energy_needed)}</TableCell>
-                        <TableCell>{safeToFixed(results.usage_load_kw)}</TableCell>
-                      </TableRow>
+                    <TableRow>
+                      <TableCell>{safeToWhole(results.num_vehicles)}</TableCell>
+                      <TableCell>{safeToWhole(results.miles_driven_per_day)}</TableCell>
+                      <TableCell>{safeToFixed(results.charging_hours_needed_daily)}</TableCell>
+                      <TableCell>{safeToFixed(results.total_energy_needed)}</TableCell>
+                      <TableCell>{safeToFixed(results.usage_load_kw)}</TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </Box>
@@ -170,7 +170,7 @@ const Results = () => {
               <Typography>Basic Service Fee based with operational load of {safeToFixed(results.usage_load_kw)} kW: ${safeToFixed(results.usage_load_kw_basic_service_fee)}</Typography>
             </DashboardCard>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <DashboardCard title="Operational Costs">
               <Typography>Weekly Operational EV costs for {safeToFixed(results.num_vehicles)} vehicles driving {results.miles_driven_per_day} miles/day for {results.charging_days_per_week} days/week (consumption rates only, no fees): ${safeToFixed(results.weekly_ev_cost)}</Typography>
@@ -202,7 +202,7 @@ const Results = () => {
               <Typography>Net GHG Reductions (MT CO2): {results?.ghg_reduction_result?.['Net GHG Reductions (MT CO2)'] ?? 'N/A'}</Typography>
             </DashboardCard>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <CostComparisonChart
               evCost={results.monthly_ev_cost}
