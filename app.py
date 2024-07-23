@@ -102,33 +102,49 @@ def handle_results():
         except ValueError:
             continue  # Skip this charger if there's an error converting types
     
-    
     # functions
     sufficient, total_energy_needed, total_charging_capacity, total_number_chargers, kw_average, charger_type_count, additional_chargers_needed = is_charging_sufficient_v2(num_vehicles, miles_driven_per_day, vehicle_efficiency, processed_chargers, charging_hours_per_day)
+    
+    if sufficient:
+        optimal_charging_kw = total_energy_needed / charging_hours_per_day
+    else:
+        optimal_charging_kw = total_charging_capacity / charging_hours_per_day
+
     total_ev_cost, monthly_ice_cost, monthly_ice_cost_one_vehicle, usage_load_kw, subscription_threshold, subscription_level, subscription_fee, hourly_usage_load_kw, charging_hours_needed_daily, usage_subscription_threshold, usage_subscription_level, usage_subscription_fee = calculate_total_costs(num_vehicles, battery_size, vehicle_efficiency, processed_chargers, miles_driven_per_day, charging_days_per_week, season, time_of_day, charging_hours_per_day,gas_price,ice_efficiency)        
     weekly_ev_cost = calculate_total_costs_weekly(num_vehicles, miles_driven_per_day, charging_days_per_week, vehicle_efficiency, season, time_of_day)
-    monthly_ev_cost = calculate_monthly_costs(weekly_ev_cost, usage_load_kw)
+    monthly_ev_cost = calculate_monthly_costs(weekly_ev_cost, optimal_charging_kw)
     monthly_savings = calculate_savings(monthly_ice_cost, monthly_ev_cost)
     ghg_reduction_result = calculate_ghg_reduction(gas_mj_per_gal, gas_unadjusted_ci, elec_mj_per_gal, elec_unadjusted_ci, num_vehicles, miles_driven_per_day, charging_days_per_week, ice_efficiency, vehicle_efficiency)
     
     usage_load_kw_basic_service_fee = get_basic_service_fee(usage_load_kw)
 
     kwh_charger_output_daily, kwh_charger_output_weekly = calculate_weekly_charger_throughput(processed_chargers, charging_hours_per_day, charging_days_per_week)
-    kwh_charger_output_monthly, load_kw, max_subscription_threshold, max_subscription_level, max_subscription_fee = calculate_monthly_charger_throughput_v2(kwh_charger_output_daily, charging_days_per_week, processed_chargers)
+    kwh_charger_output_monthly, load_kw, max_subscription_threshold, max_subscription_level, max_subscription_fee = calculate_monthly_charger_throughput_v2(kwh_charger_output_daily, charging_days_per_week, processed_chargers, charging_hours_per_day)
     charger_output_costs_weekly, charger_output_costs_monthly = calculate_charger_throughput_costs(kwh_charger_output_weekly, kwh_charger_output_monthly, season, time_of_day, load_kw)
 
     max_load_kw_basic_service_fee = get_basic_service_fee(load_kw)
+
+    # functions to calculate
+    # optimal_charging_kw = calculate_optimized_charging(num_vehicles, miles_driven_per_day, vehicle_efficiency, chargers, charging_hours_per_day)
+    # basic_service_fee = get_basic_service_fee(optimal_charging_kw)
+
+    if sufficient:
+        optimal_charging_kw = total_energy_needed / charging_hours_per_day
+    else:
+        optimal_charging_kw = total_charging_capacity / charging_hours_per_day
+
+    basic_service_fee = get_basic_service_fee(optimal_charging_kw)
 
 
     # Prepare the output message
     if sufficient:
         message = f"{total_number_chargers} chargers with "
         message += "an avg " if charger_type_count > 1 else "a "
-        message += f"rating of {kw_average:.2f} kW is sufficient for vehicle operation. Total daily energy needed: {total_energy_needed:.2f} kWh, Total daily charging capacity: {total_charging_capacity:.2f} kWh"
+        message += f"rating of {kw_average:.2f} kW is sufficient for vehicle operation and charging behavior. Total daily energy needed: {total_energy_needed:.2f} kWh, Total daily charging capacity: {total_charging_capacity:.2f} kWh"
     else:
         message = f"{total_number_chargers} chargers with "
         message += "an avg " if charger_type_count > 1 else "a "
-        message += f"rating of {kw_average:.2f} kW is NOT sufficient for vehicle operation. Total daily energy needed: {total_energy_needed:.2f} kWh, Total daily charging capacity: {total_charging_capacity:.2f} kWh. \n"
+        message += f"rating of {kw_average:.2f} kW is NOT sufficient for vehicle operation and charging behavior.. Total daily energy needed: {total_energy_needed:.2f} kWh, Total daily charging capacity: {total_charging_capacity:.2f} kWh. \n"
         message += f"Additional chargers needed with the same kW rating: {additional_chargers_needed}"
     
     results = {
@@ -154,6 +170,7 @@ def handle_results():
         "ghg_reduction_result": ghg_reduction_result,
         "total_number_chargers": total_number_chargers,
         "usage_load_kw": usage_load_kw,
+        "total_energy_needed": total_energy_needed,
         "usage_load_kw_basic_service_fee": usage_load_kw_basic_service_fee,
         "ice_efficiency": ice_efficiency,
         "weekly_ev_cost": weekly_ev_cost,
@@ -161,7 +178,9 @@ def handle_results():
         "miles_driven_per_day": miles_driven_per_day,
         "monthly_ice_cost_one_vehicle": monthly_ice_cost_one_vehicle,
         "charger_output_costs_monthly": charger_output_costs_monthly,
-        "charger_output_costs_weekly": charger_output_costs_weekly
+        "charger_output_costs_weekly": charger_output_costs_weekly,
+        "optimal_charging_kw": optimal_charging_kw,
+        "basic_service_fee": basic_service_fee,
     }
 
     try:

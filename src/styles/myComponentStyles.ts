@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import TextField from '@mui/material/TextField';
 
 
 export const Msform = styled(Box)(({ theme }) => ({
@@ -35,6 +36,31 @@ export const Msform = styled(Box)(({ theme }) => ({
     '&:not(:first-of-type)': {
       display: 'none',
     },
+  }));
+
+  export const StyledTextField = styled(TextField)(({ theme }) => ({
+    marginBottom: theme.spacing(2), // Adjust the spacing as needed
+    width: '100%',
+  }));
+
+  export const Fieldset2 = styled('fieldset')(({ theme }) => ({
+    background: 'white',
+    border: 'none',
+    borderRadius: '3px',
+    // boxShadow: '0 0 15px 1px rgba(0, 0, 0, 0.4)',
+    padding: '20px 30px',
+    boxSizing: 'border-box',
+    width: '80%',
+    margin: '0 10%',
+    position: 'relative',
+    '&:not(:first-of-type)': {
+      display: 'none',
+    },
+  }));
+
+  export const StyledTextField2 = styled(TextField)(({ theme }) => ({
+    marginBottom: theme.spacing(2), // Adjust the spacing as needed
+    width: '100%',
   }));
   
   export const Input = styled('input')(({ theme }) => ({

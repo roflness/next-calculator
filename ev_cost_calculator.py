@@ -109,7 +109,7 @@ def get_season_config(month):
 def calculate_ev_cost(total_distance_per_week, season, time_of_day, usage_load_kw, vehicle_efficiency, subscription_fee):
     basic_service_fee = get_usage_basic_service_fee(usage_load_kw)
     consumption_fee = rates[season][time_of_day]
-    total_ev_cost = ((total_distance_per_week / vehicle_efficiency) * consumption_fee) + basic_service_fee + subscription_fee
+    total_ev_cost = (((total_distance_per_week / vehicle_efficiency) * consumption_fee) * 4.345 ) + basic_service_fee + subscription_fee
     # print(f"Total Distance traveled for {num_vehicles} vehicles driving {miles_driven_per_day} miles/day for {charging_days_per_week} days/week: {total_distance_per_week}")
     # ev_cost_per_mile = (consumption_fee) / vehicle_efficiency
     # total_ev_cost = (ev_cost_per_mile * total_distance_per_week) + basic_service_fee + subscription_fee
@@ -149,6 +149,8 @@ def calculate_total_costs(num_vehicles, battery_size, vehicle_efficiency, charge
             print("Error: Charger data is incomplete.")
             continue  # Skip this charger or handle the error appropriately
         usage_load_kw += charger["rating_kW"] * charger["count"]
+
+    usage_load_kw = usage_load_kw * charging_hours_per_day # max charger output per day based on charging behavior
 
     subscription_threshold, subscription_level, subscription_fee = get_usage_subscription_fee(usage_load_kw)
     total_ev_cost = calculate_ev_cost(total_distance_per_week, season, time_of_day, usage_load_kw, vehicle_efficiency, subscription_fee)
@@ -190,13 +192,14 @@ def calculate_weekly_charger_throughput(chargers, charging_hours_per_day, chargi
     return kwh_charger_output_daily, kwh_charger_output_weekly
 
 # Function to calculate throughput of chargers on monthly basis
-def calculate_monthly_charger_throughput_v2(kwh_charger_output_daily,charging_days_per_week, chargers):
+def calculate_monthly_charger_throughput_v2(kwh_charger_output_daily,charging_days_per_week, chargers, charging_hours_per_day):
     kwh_charger_output_monthly = (kwh_charger_output_daily * charging_days_per_week) * 4.345
     load_kw = 0
     # Raw load_kw calculation
     for chargers in chargers:
         load_kw += chargers["rating_kW"] * chargers["count"]
 
+    # load_kw = load_kw * charging_hours_per_day * charging_days_per_week
     max_subscription_threshold, max_subscription_level, max_subscription_fee = get_subscription_fee(load_kw)
 
     return kwh_charger_output_monthly, load_kw, max_subscription_threshold, max_subscription_level, max_subscription_fee
@@ -210,6 +213,23 @@ def calculate_charger_throughput_costs(kwh_charger_output_weekly, kwh_charger_ou
     charger_output_costs_monthly = (kwh_charger_output_monthly * consumption_fee) + basic_service_fee + subscription_fee
     return charger_output_costs_weekly, charger_output_costs_monthly
 
+
+# def calculate_optimized_charging(num_vehicles, miles_driven_per_day, vehicle_efficiency, chargers, charging_hours_per_day):
+#     total_energy_needed = (num_vehicles * miles_driven_per_day) / vehicle_efficiency  # kWh
+
+#     total_charging_capacity = sum(charger['count'] * charger['rating_kW'] for charger in chargers) * charging_hours_per_day  # kWh
+#     total_number_chargers = sum(charger['count'] for charger in chargers)  # Calculate total number of chargers
+
+#     if total_number_chargers == 0:
+#         raise ValueError("No chargers available")
+
+#     if total_charging_capacity >= total_energy_needed:
+#         optimal_charging_kw = total_energy_needed / charging_hours_per_day
+#     else:
+#         optimal_charging_kw = total_charging_capacity / charging_hours_per_day  # Not sufficient
+
+#     return optimal_charging_kw
+
 # Function using the charger list to calculate if the specified chargers is enough to accommodate the vehicle's operational needs
 def is_charging_sufficient_v2(num_vehicles, miles_driven_per_day, vehicle_efficiency, chargers, charging_hours_per_day):
     total_daily_distance = num_vehicles * miles_driven_per_day
@@ -218,11 +238,6 @@ def is_charging_sufficient_v2(num_vehicles, miles_driven_per_day, vehicle_effici
     total_daily_charging = 0
     total_number_chargers = 0
     charger_type_count = 0
-    # kw_average = 0
-    # for chargers in chargers:
-    #     total_daily_charging += chargers["count"] * chargers["rating_kW"]
-    #     total_number_chargers += chargers["count"]
-    #     charger_type_count += 1
 
     for charger in chargers:  # Iterate over each charger in the list
         if 'count' in charger and 'rating_kW' in charger:

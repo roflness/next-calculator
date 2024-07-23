@@ -34,7 +34,7 @@ const CostComparisonChart: React.FC<CostComparisonChartProps> = ({
       height: 370,
       stacked: true,
     },
-    colors: [primary, secondary, '#00C49F'],
+    colors: [primary, secondary, '#00C49F', '#FFBB28'],
     plotOptions: {
       bar: {
         horizontal: false,
@@ -52,13 +52,17 @@ const CostComparisonChart: React.FC<CostComparisonChartProps> = ({
       colors: ['transparent'],
     },
     dataLabels: {
-         total: {
-            enabled: true,
-            style: {
-            fontSize: '13px',
-            fontWeight: 900
-            }
-        }
+      enabled: true,
+      total: {
+        enabled: true,
+        style: {
+          fontSize: '13px',
+          fontWeight: 900,
+        },
+      },
+      formatter: function (val: number) {
+        return val !== 0 ? `$${val.toFixed(2)}` : '';
+      },
     },
     legend: {
       show: true,
@@ -76,9 +80,9 @@ const CostComparisonChart: React.FC<CostComparisonChartProps> = ({
       tickAmount: 3,
       labels: {
         formatter: function (value: number) {
-            return `$${value.toFixed(2)}`;
-        }
-    }
+          return `$${value.toFixed(2)}`;
+        },
+      },
     },
     xaxis: {
       categories: ['EV Costs', 'ICE Costs'],
@@ -89,27 +93,33 @@ const CostComparisonChart: React.FC<CostComparisonChartProps> = ({
     tooltip: {
       theme: 'dark',
       fillSeriesColor: false,
+      y: {
+        formatter: function (value: number) {
+          return `$${value.toFixed(2)}`;
+        },
+      },
     },
   };
 
   const seriescolumnchart: any = [
-    {
+    iceCost !== 0 && {
+        name: 'ICE Cost',
+        data: [0, iceCost],
+    },
+    basicServiceFee !== 0 && {
       name: 'Basic Service Fee',
       data: [basicServiceFee, 0],
     },
-    {
+    subscriptionFee !== 0 && {
       name: 'Subscription Fee',
       data: [subscriptionFee, 0],
     },
-    {
+    consumptionCost !== 0 && {
       name: 'Consumption Cost',
       data: [consumptionCost, 0],
     },
-    {
-      name: 'ICE Cost',
-      data: [0, iceCost],
-    },
-  ];
+
+  ].filter(Boolean);  // filter out any falsy values
 
   return (
     <DashboardCard title="EV vs ICE Costs">
