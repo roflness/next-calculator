@@ -48,14 +48,6 @@ type FormInputs = {
 const steps = ['Vehicle Selection', 'Charging Behavior', 'Charger Selection', 'Time of Year'];
 
 const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
-    // const [activeStep, setActiveStep] = useState(0);
-    // const router = useRouter();
-    // const [step, setStep] = useState(1);
-    // const [localFormData, setLocalFormData] = useState<FormInputs>(formData);
-    // const [formData, setFormData] = useState(
-        
-    // );
-
     const router = useRouter();
     const [localFormData, setLocalFormData] = useState<FormInputs>(formData);
     const [chargerEntries, setChargerEntries] = useState<ChargerEntry[]>(formData.chargerEntries || [{ chargerType: '', chargerCount: '' }]);
@@ -331,9 +323,9 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
 
           <FsTitle className="fs-title">Charger Selection</FsTitle>
                 <ChargerSelectionContainer className="charger-selection-container" id="charger-container">
-                            {chargerEntries.map((chargerEntries, index) => (
+                        {localFormData.chargerEntries?.map((entry, index) => (
                                 <div key={index} className="charger-entry">
-                                    <Select name="chargerType" onChange={e => handleChange(e, index)} value={chargerEntries.chargerType}>
+                                    <Select name="chargerType" onChange={e => handleChange(e, index)} value={entry.chargerType}>
                                         <option value="" disabled>-- Select Charger Type --</option>
                                         {chargerTypes.map((charger) => (
                                             <option key={charger.charger_type_id} value={charger.charger_type_id}>
@@ -341,8 +333,8 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
                                             </option>
                                         ))}
                                     </Select>
-                                    <StyledTextField2 type="number" name="chargerCount" label="Count of Charger" required value={chargerEntries.chargerCount} onChange={e => handleChange(e, index)} />
-                                    {chargerEntries.length > 1 && (
+                                    <StyledTextField2 type="number" name="chargerCount" label="Count of Charger" required value={entry.chargerCount} onChange={e => handleChargerEntryChange(index, 'chargerCount', e.target.value)} />
+                                    {localFormData.chargerEntries.length > 1 && (
                                         <RemoveButton type="button" className='remove-button' onClick={() => removeCharger(index)}>Remove</RemoveButton>
                                     )}
                                 </div>

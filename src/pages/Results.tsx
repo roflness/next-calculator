@@ -202,9 +202,7 @@ const Results = () => {
               <Typography>Net GHG Reductions (MT CO2): {results?.ghg_reduction_result?.['Net GHG Reductions (MT CO2)'] ?? 'N/A'}</Typography>
             </DashboardCard>
           </Grid>
-          <Grid item xs={12}>
-            <ChargersSelected chargers={results.chargers} />
-          </Grid>
+          
           <Grid item xs={12} md={6}>
             <CostComparisonChart
               evCost={results.monthly_ev_cost}
@@ -213,6 +211,9 @@ const Results = () => {
               subscriptionFee={results.usage_subscription_fee}
               consumptionCost={results.monthly_ev_cost - results.basic_service_fee - results.usage_subscription_fee}
             />
+          </Grid>
+          <Grid item xs={12}>
+            <ChargersSelected chargers={results.chargers} />
           </Grid>
           <Grid item xs={12} md={6}>
             <DashboardCard title="Cost Comparison Table">
