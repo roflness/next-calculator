@@ -155,20 +155,37 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
           case 'chargingDaysPerWeek':
             return validateChargingDaysPerWeek(value);
           default:
-            return '';
+            return 'Please fill in missing fields';
         }
       };
+
+    //   const validateForm = () => {
+    //     const newErrors: { [key: string]: string } = {};
+    //     Object.keys(formData).forEach((key) => {
+    //       const value = localFormData[key as keyof FormInputs];
+    //       const error = validateInput(key, value);
+    //       if (error) {
+    //         newErrors[key] = error;
+    //       }
+    //     });
+    
+    //     setErrors(newErrors);
+    //     return Object.keys(newErrors).length === 0;
+    //   };
 
       const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
         Object.keys(formData).forEach((key) => {
           const value = localFormData[key as keyof FormInputs];
-          const error = validateInput(key, value);
-          if (error) {
-            newErrors[key] = error;
+      
+          // Check if the value is a string before calling validateInput
+          if (typeof value === 'string') {
+            const error = validateInput(key, value);
+            if (error) {
+              newErrors[key] = error;
+            }
           }
         });
-    
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
       };
