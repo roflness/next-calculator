@@ -277,7 +277,6 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
             type="number"
             name="milesDrivenPerDay"
             label="Miles Driven Per Day"
-            step="any"
             required
             value={localFormData.milesDrivenPerDay}
             onChange={handleInputChange}
