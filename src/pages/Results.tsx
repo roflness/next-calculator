@@ -15,6 +15,9 @@ import DashboardCard from '../components/shared/DashboardCard';
 import ChargersSelected from '../components/Results/ChargersSelected';
 import { ActionButton } from '../styles/myComponentStyles';
 import CostComparisonChart from '../components/Results/CostComparisonChart';
+import CostComparisonTable from '../components/Results/CostComparisonTable';
+
+
 
 interface ChargerType {
   charger_type_id: number;
@@ -101,7 +104,7 @@ const Results = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <DashboardCard title="Operational Costs">
-            <p><span className="fs-title">Weekly Operational EV costs for {results.num_vehicles} vehicles driving {results.miles_driven_per_day} miles/day for {results.charging_days_per_week} days/week (consumption rates only, no fees): </span>${safeToFixed(results.weekly_ev_cost)}</p>
+            <p><span className="fs-title">Weekly Operational EV costs for {safeToFixed(results.num_vehicles)} vehicles driving {results.miles_driven_per_day} miles/day for {results.charging_days_per_week} days/week (consumption rates only, no fees): </span>${safeToFixed(results.weekly_ev_cost)}</p>
             <p><span className="fs-title">Monthly Operational EV costs (consumption rates with fees included): </span>${safeToFixed(results.monthly_ev_cost)}</p>
           </DashboardCard>
         </Grid>
@@ -134,7 +137,20 @@ const Results = () => {
           <ChargersSelected chargers={results.chargers} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <CostComparisonChart />
+          <CostComparisonChart 
+            // evCost={results.monthly_ev_cost}
+            iceCost={results.monthly_ice_cost}
+            basicServiceFee={results.usage_load_kw_basic_service_fee}
+            subscriptionFee={results.usage_subscription_fee}
+            consumptionCost={results.monthly_ev_cost - results.usage_load_kw_basic_service_fee - results.usage_load_kw_basic_service_fee}/>
+          <DashboardCard title="">
+            <CostComparisonTable 
+              iceCost={results.monthly_ice_cost}
+              basicServiceFee={results.usage_load_kw_basic_service_fee}
+              subscriptionFee={results.usage_subscription_fee}
+              consumptionCost={results.monthly_ev_cost - results.usage_load_kw_basic_service_fee - results.usage_load_kw_basic_service_fee}/>
+            />
+          </DashboardCard>
         </Grid>
       </Grid>
       <br />

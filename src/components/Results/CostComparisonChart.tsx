@@ -1,119 +1,127 @@
 import React from 'react';
-import { Select, MenuItem } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import DashboardCard from '../shared/DashboardCard';
-import dynamic from "next/dynamic";
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+import dynamic from 'next/dynamic';
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
+interface CostComparisonChartProps {
+  evCost?: number;
+  iceCost?: number;
+  basicServiceFee?: number;
+  subscriptionFee?: number;
+  consumptionCost?: number;
+}
 
-const CostComparisonChart = () => {
+const CostComparisonChart: React.FC<CostComparisonChartProps> = ({
+  evCost = 0,
+  iceCost = 0,
+  basicServiceFee = 0,
+  subscriptionFee = 0,
+  consumptionCost = 0,
+}) => {
+  const theme = useTheme();
+  const primary = theme.palette.primary.main;
+  const secondary = theme.palette.secondary.main;
 
-    // select
-    // const [month, setMonth] = React.useState('1');
+  const optionscolumnchart: any = {
+    chart: {
+      type: 'bar',
+      fontFamily: "'Plus Jakarta Sans', sans-serif;",
+      foreColor: '#adb0bb',
+      toolbar: {
+        show: true,
+      },
+      height: 370,
+      stacked: true,
+    },
+    colors: [primary, secondary, '#00C49F'],
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        barHeight: '60%',
+        columnWidth: '60%',
+        borderRadius: [6],
+        borderRadiusApplication: 'end',
+        borderRadiusWhenStacked: 'last',
+      },
+    },
+    stroke: {
+      show: true,
+      width: 5,
+      lineCap: 'butt',
+      colors: ['transparent'],
+    },
+    dataLabels: {
+         total: {
+            enabled: true,
+            style: {
+            fontSize: '13px',
+            fontWeight: 900
+            }
+        }
+    },
+    legend: {
+      show: true,
+    },
+    grid: {
+      borderColor: 'rgba(0,0,0,0.1)',
+      strokeDashArray: 3,
+      xaxis: {
+        lines: {
+          show: false,
+        },
+      },
+    },
+    yaxis: {
+      tickAmount: 3,
+      labels: {
+        formatter: function (value: number) {
+            return `$${value.toFixed(2)}`;
+        }
+    }
+    },
+    xaxis: {
+      categories: ['EV Costs', 'ICE Costs'],
+      axisBorder: {
+        show: false,
+      },
+    },
+    tooltip: {
+      theme: 'dark',
+      fillSeriesColor: false,
+    },
+  };
 
-    // const handleChange = (event: any) => {
-    //     setMonth(event.target.value);
-    // };
+  const seriescolumnchart: any = [
+    {
+      name: 'Basic Service Fee',
+      data: [basicServiceFee, 0],
+    },
+    {
+      name: 'Subscription Fee',
+      data: [subscriptionFee, 0],
+    },
+    {
+      name: 'Consumption Cost',
+      data: [consumptionCost, 0],
+    },
+    {
+      name: 'ICE Cost',
+      data: [0, iceCost],
+    },
+  ];
 
-    // chart color
-    const theme = useTheme();
-    const primary = theme.palette.primary.main;
-    const secondary = theme.palette.secondary.main;
-
-    // chart
-    const optionscolumnchart: any = {
-        chart: {
-            type: 'bar',
-            fontFamily: "'Plus Jakarta Sans', sans-serif;",
-            foreColor: '#adb0bb',
-            toolbar: {
-                show: true,
-            },
-            height: 370,
-        },
-        colors: [primary, secondary],
-        plotOptions: {
-            bar: {
-                horizontal: false,
-                barHeight: '60%',
-                columnWidth: '42%',
-                borderRadius: [6],
-                borderRadiusApplication: 'end',
-                borderRadiusWhenStacked: 'all',
-            },
-        },
-
-        stroke: {
-            show: true,
-            width: 5,
-            lineCap: "butt",
-            colors: ["transparent"],
-          },
-        dataLabels: {
-            enabled: false,
-        },
-        legend: {
-            show: false,
-        },
-        grid: {
-            borderColor: 'rgba(0,0,0,0.1)',
-            strokeDashArray: 3,
-            xaxis: {
-                lines: {
-                    show: false,
-                },
-            },
-        },
-        yaxis: {
-            tickAmount: 4,
-        },
-        xaxis: {
-            categories: ['08/24', '09/24'],
-            axisBorder: {
-                show: false,
-            },
-        },
-        tooltip: {
-            theme: 'dark',
-            fillSeriesColor: false,
-        },
-    };
-    const seriescolumnchart: any = [
-        {
-            name: 'Eanings this month',
-            data: [355, 390],
-        },
-        {
-            name: 'Expense this month',
-            data: [280, 250],
-        },
-    ];
-
-    return (
-
-        <DashboardCard title="EV vs ICE Costs" 
-        // action={
-        //     <Select
-        //         labelId="month-dd"
-        //         id="month-dd"
-        //         value={month}
-        //         size="small"
-        //         onChange={handleChange}
-        //     >
-        //         <MenuItem value={1}>March 2023</MenuItem>
-        //         <MenuItem value={2}>April 2023</MenuItem>
-        //         <MenuItem value={3}>May 2023</MenuItem>
-        //     </Select>
-        // }
-        >
-            <Chart
-                options={optionscolumnchart}
-                series={seriescolumnchart}
-                type="bar"
-                height="auto" width={"100%"}
-            />
-        </DashboardCard>
-    );
+  return (
+    <DashboardCard title="EV vs ICE Costs">
+      <Chart
+        options={optionscolumnchart}
+        series={seriescolumnchart}
+        type="bar"
+        height="auto"
+        width={'100%'}
+      />
+    </DashboardCard>
+  );
 };
 
 export default CostComparisonChart;

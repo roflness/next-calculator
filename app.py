@@ -133,6 +133,7 @@ def handle_results():
     
     results = {
         "max_load_kw_basic_service_fee": max_load_kw_basic_service_fee,
+        "num_vehicles": num_vehicles,
         "load_kw": load_kw,
         "max_subscription_threshold": max_subscription_threshold,
         "max_subscription_fee": max_subscription_fee,
