@@ -245,17 +245,17 @@ const MainForm = () => {
                     <Fieldset>
                         <FsTitle className="fs-title">Vehicle Selection</FsTitle>
                         <StyledTextField type="number" name="numVehicles" label="Number of Vehicles" required value={formData.numVehicles} onChange={handleChange} onBlur={handleBlur} />
-                        <StyledTextField type="number" name="milesDrivenPerDay" label="Miles Driven Per Day" step="any" required value={formData.milesDrivenPerDay} onChange={handleChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="milesDrivenPerDay" label="Miles Driven Per Day" required value={formData.milesDrivenPerDay} onChange={handleChange} onBlur={handleBlur} />
                         <StyledTextField type="number" name="batterySize" step="any" label="Vehicle Battery Size" required value={formData.batterySize} onChange={handleChange} onBlur={handleBlur} />
-                        <StyledTextField type="number" name="vehicleEfficiency" step="any" label="Vehicle Efficiency" min="0.01" required value={formData.vehicleEfficiency} onChange={handleChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="vehicleEfficiency" step="any" label="Vehicle Efficiency" required value={formData.vehicleEfficiency} onChange={handleChange} onBlur={handleBlur} />
                         <ActionButton type="button" className="next action-button" onClick={() => setActiveStep(1)}>Next</ActionButton>
                     </Fieldset>
                 )}
                 {activeStep === 1 && (
                     <Fieldset>
                         <FsTitle className="fs-title">Charging Behavior</FsTitle>
-                        <StyledTextField type="number" name="chargingHoursPerDay" max="24" label="Charging Hours Per Day" required value={formData.chargingHoursPerDay} onChange={handleChange} onBlur={handleBlur} />
-                        <StyledTextField type="number" name="chargingDaysPerWeek" max="7" label="Charging Days Per Week" required value={formData.chargingDaysPerWeek} onChange={handleChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="chargingHoursPerDay" label="Charging Hours Per Day" required value={formData.chargingHoursPerDay} onChange={handleChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="chargingDaysPerWeek" label="Charging Days Per Week" required value={formData.chargingDaysPerWeek} onChange={handleChange} onBlur={handleBlur} />
                         <ActionButton type="button" className="previous action-button" onClick={() => setActiveStep(0)}>Back</ActionButton>
                         <ActionButton type="button" className="next action-button" onClick={() => setActiveStep(2)}>Next</ActionButton>
                     </Fieldset>
