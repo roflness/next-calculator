@@ -41,6 +41,8 @@ type FormData = {
     chargingDaysPerWeek: string;
     season: string;
     timeOfDay: string;
+    // chargers: ChargerEntry[];
+    chargerEntries: ChargerEntry[];
 };
 
 type ChargerEntry = {
@@ -60,7 +62,7 @@ const MainForm = () => {
     const [activeStep, setActiveStep] = useState(0);
     const router = useRouter();
     // const [step, setStep] = useState(1);
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         numVehicles: '',
         milesDrivenPerDay: '',
         batterySize: '',
@@ -68,7 +70,8 @@ const MainForm = () => {
         chargingHoursPerDay: '',
         chargingDaysPerWeek: '',
         season: '',
-        timeOfDay: ''
+        timeOfDay: '',
+        chargerEntries: [{ chargerType: '', chargerCount: '' }],
     });
 
     const handleNext = () => {
@@ -144,15 +147,61 @@ const MainForm = () => {
         loadChargerTypes();
     }, []);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number | null = null) => {
-        if (index !== null) {
-            const newEntries = [...chargerEntries];
-            const name = e.target.name as keyof ChargerEntry;
-            newEntries[index][name] = e.target.value;
-            setChargerEntries(newEntries);
-        } else {
-            setFormData({ ...formData, [e.target.name]: e.target.value });
+    // const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number | null = null) => {
+    //     if (index !== null) {
+    //         const newEntries = [...chargerEntries];
+    //         const name = e.target.name as keyof ChargerEntry;
+    //         newEntries[index][name] = e.target.value;
+    //         setChargerEntries(newEntries);
+    //     } else {
+    //         setFormData({ ...formData, [e.target.name]: e.target.value });
+    //     }
+    // };
+
+    const handleChargerEntryChange = (index: number, field: keyof ChargerEntry, value: string) => {
+        const newEntries = [...formData.chargerEntries];
+        if (newEntries[index]) {
+            newEntries[index][field] = value;
+            setFormData({ ...formData, chargerEntries: newEntries });
         }
+    };
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number) => {
+        const { name, value } = e.target;
+        const newEntries = Array.isArray(formData.chargerEntries) ? [...formData.chargerEntries] : [];
+        const entry = newEntries[index];
+        if (entry) {
+            if (name === 'chargerType') {
+                entry.chargerType = value;
+            } else if (name === 'chargerCount') {
+                entry.chargerCount = value;
+            }
+            setFormData({ ...formData, chargerEntries: newEntries });
+        }
+    };
+
+    const addCharger = () => {
+        setFormData({
+            ...formData,
+            chargerEntries: [...formData.chargerEntries, { chargerType: '', chargerCount: '' }],
+        });
+    };
+
+    const removeCharger = (index: number) => {
+        const newEntries = formData.chargerEntries.filter((_, i) => i !== index);
+        setFormData({ ...formData, chargerEntries: newEntries });
+    };
+
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+        validateInput(name, value);
+    };
+
+    const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+        validateInput(name, value);
     };
 
     const handleBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -192,14 +241,14 @@ const MainForm = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const addCharger = () => {
-        setChargerEntries([...chargerEntries, { chargerType: '', chargerCount: '' }]);
-    };
+    // const addCharger = () => {
+    //     setChargerEntries([...chargerEntries, { chargerType: '', chargerCount: '' }]);
+    // };
 
-    const removeCharger = (index: number) => {
-        const newEntries = chargerEntries.filter((_, i) => i !== index);
-        setChargerEntries(newEntries);
-    };
+    // const removeCharger = (index: number) => {
+    //     const newEntries = chargerEntries.filter((_, i) => i !== index);
+    //     setChargerEntries(newEntries);
+    // };
 
     // const nextStep = () => setStep(step + 1);
     // const prevStep = () => setStep(step > 1 ? step - 1 : step);
@@ -244,18 +293,18 @@ const MainForm = () => {
                 {activeStep === 0 && (
                     <Fieldset>
                         <FsTitle className="fs-title">Vehicle Selection</FsTitle>
-                        <StyledTextField type="number" name="numVehicles" label="Number of Vehicles" required value={formData.numVehicles} onChange={handleChange} onBlur={handleBlur} />
-                        <StyledTextField type="number" name="milesDrivenPerDay" label="Miles Driven Per Day" required value={formData.milesDrivenPerDay} onChange={handleChange} onBlur={handleBlur} />
-                        <StyledTextField type="number" name="batterySize" step="any" label="Vehicle Battery Size" required value={formData.batterySize} onChange={handleChange} onBlur={handleBlur} />
-                        <StyledTextField type="number" name="vehicleEfficiency" step="any" label="Vehicle Efficiency" required value={formData.vehicleEfficiency} onChange={handleChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="numVehicles" label="Number of Vehicles" required value={formData.numVehicles} onChange={handleInputChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="milesDrivenPerDay" label="Miles Driven Per Day" required value={formData.milesDrivenPerDay} onChange={handleInputChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="batterySize" step="any" label="Vehicle Battery Size" required value={formData.batterySize} onChange={handleInputChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="vehicleEfficiency" step="any" label="Vehicle Efficiency" required value={formData.vehicleEfficiency} onChange={handleInputChange} onBlur={handleBlur} />
                         <ActionButton type="button" className="next action-button" onClick={() => setActiveStep(1)}>Next</ActionButton>
                     </Fieldset>
                 )}
                 {activeStep === 1 && (
                     <Fieldset>
                         <FsTitle className="fs-title">Charging Behavior</FsTitle>
-                        <StyledTextField type="number" name="chargingHoursPerDay" label="Charging Hours Per Day" required value={formData.chargingHoursPerDay} onChange={handleChange} onBlur={handleBlur} />
-                        <StyledTextField type="number" name="chargingDaysPerWeek" label="Charging Days Per Week" required value={formData.chargingDaysPerWeek} onChange={handleChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="chargingHoursPerDay" label="Charging Hours Per Day" required value={formData.chargingHoursPerDay} onChange={handleInputChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="chargingDaysPerWeek" label="Charging Days Per Week" required value={formData.chargingDaysPerWeek} onChange={handleInputChange} onBlur={handleBlur} />
                         <ActionButton type="button" className="previous action-button" onClick={() => setActiveStep(0)}>Back</ActionButton>
                         <ActionButton type="button" className="next action-button" onClick={() => setActiveStep(2)}>Next</ActionButton>
                     </Fieldset>
@@ -274,7 +323,7 @@ const MainForm = () => {
                                             </option>
                                         ))}
                                     </Select>
-                                    <StyledTextField type="number" name="chargerCount" label="Count of Charger" required value={entry.chargerCount} onChange={e => handleChange(e, index)} />
+                                    <StyledTextField type="number" name="chargerCount" label="Count of Charger" required value={entry.chargerCount} onChange={e => handleChargerEntryChange(index, 'chargerCount', e.target.value)} />
                                     {chargerEntries.length > 1 && (
                                         <RemoveButton type="button" className='remove-button' onClick={() => removeCharger(index)}>Remove</RemoveButton>
                                     )}
@@ -290,13 +339,13 @@ const MainForm = () => {
                 {activeStep === 3 && (
                     <Fieldset>
                         <FsTitle className="fs-title">Time of Year</FsTitle>
-                        <Select name="season" value={formData.season} onChange={handleChange}>
+                        <Select name="season" value={formData.season} onChange={handleSelectChange}>
                             <option value="" disabled>-- Select Time of Year --</option>
                             <option value="Summer">Summer</option>
                             <option value="Winter (March and April)">Winter (March and April)</option>
                             <option value="Winter (excluding March and April)">Winter (excluding March and April)</option>
                         </Select>
-                        <Select name="timeOfDay" value={formData.timeOfDay} onChange={handleChange}>
+                        <Select name="timeOfDay" value={formData.timeOfDay} onChange={handleSelectChange}>
                             <option value="" disabled>-- Select Charging Time of Day --</option>
                             <option value="SOP">Super Off-Peak</option>
                             <option value="Off-Peak">Off-Peak</option>
