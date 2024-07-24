@@ -8,7 +8,30 @@ interface ItemType {
   formData: FormData;
 }
 
-const Sidebar = ({
+type FormInputs = {
+  numVehicles: string;
+  milesDrivenPerDay: string;
+  batterySize: string;
+  vehicleEfficiency: string;
+  chargingHoursPerDay: string;
+  chargingDaysPerWeek: string;
+  season: string;
+  timeOfDay: string;
+  chargerEntries: ChargerEntry[];
+};
+
+type ChargerEntry = {
+  chargerType: string;
+  chargerCount: string;
+}
+
+type ChargerType = {
+  charger_type_id: string;
+  type: string;
+  rating_kW: number;
+};
+
+const Sidebar: React.FC<ItemType> = ({
   isMobileSidebarOpen,
   onSidebarClose,
   isSidebarOpen,
@@ -20,7 +43,7 @@ const Sidebar = ({
     xs: "100%", // Full width on small screens
     md: "20%", // 20% width on medium and larger screens
   };
-  
+
   if (lgUp) {
     return (
       <Box
@@ -55,7 +78,7 @@ const Sidebar = ({
               {/* ------------------------------------------- */}
               {/* Sidebar Items */}
               {/* ------------------------------------------- */}
-              <SecondaryForm formData={formData}/>
+              <SecondaryForm formData={formData} />
               {/* <Upgrade /> */}
             </Box>
           </Box>
@@ -77,7 +100,7 @@ const Sidebar = ({
         },
       }}
     >
-      <SecondaryForm formData={formData}/>
+      <SecondaryForm formData={formData} />
       {/* <SidebarItems /> */}
       {/* <Upgrade /> */}
     </Drawer>

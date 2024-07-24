@@ -1,0 +1,61 @@
+.charging-schedule {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .fs-title, .fs-subtitle {
+    text-align: center;
+  }
+  
+  .checkbox-group {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin: 10px 0;
+  }
+  
+  .hour-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    gap: 10px;
+    width: 100%;
+    margin: 20px 0;
+  }
+  
+  .hour-box {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .hour-box.selected {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .secondary-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center;
+  }
+  
+  .secondary-button:hover {
+    background-color: #0056b3;
+  }

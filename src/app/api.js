@@ -14,6 +14,19 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 //     }
 // };
 
+// Fetch time of use rates from the backend
+export const fetchTimeOfUseRates = async () => {
+  try {
+      const response = await fetch(`${BASE_URL}/api/time_of_use_rates`);
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json(); // Directly return the data for use in components
+  } catch (error) {
+      console.error('Failed to fetch time of use rates:', error);
+      return []; // Return an empty array in case of an error
+  }
+};
 
 
 // Fetch charger types from the backend

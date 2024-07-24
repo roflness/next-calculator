@@ -40,6 +40,14 @@ def charger_types():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+@app.route('/api/time_of_use_rates', methods=['GET'])
+@cross_origin()
+def get_time_of_use_rates():
+    try:
+        return jsonify(time_of_use_rates)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 @app.route('/')
 def index():
     return app.send_static_file('index.html')

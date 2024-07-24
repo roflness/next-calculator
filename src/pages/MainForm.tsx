@@ -25,7 +25,9 @@ import {
     InvalidInput,
     DisabledButton,
 } from '../styles/myComponentStyles';
-import { TextField } from '@mui/material';
+// import { TextField } from '@mui/material';
+import ChargingSchedule from '../components/Results/ChargingSchedule';
+import { fetchTimeOfUseRates } from '../app/api';
 
 
 
@@ -147,50 +149,51 @@ const MainForm = () => {
         loadChargerTypes();
     }, []);
 
-    // const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number | null = null) => {
-    //     if (index !== null) {
-    //         const newEntries = [...chargerEntries];
-    //         const name = e.target.name as keyof ChargerEntry;
-    //         newEntries[index][name] = e.target.value;
-    //         setChargerEntries(newEntries);
-    //     } else {
-    //         setFormData({ ...formData, [e.target.name]: e.target.value });
+    const [selectedHours, setSelectedHours] = useState<number[]>([]);
+    const [timeOfUseRates, setTimeOfUseRates] = useState<any>(null);
+
+    useEffect(() => {
+        const loadTimeOfUseRates = async () => {
+            try {
+                const rates = await fetchTimeOfUseRates();
+                setTimeOfUseRates(rates);
+            } catch (error) {
+                console.error('Error fetching time of use rates:', error);
+            }
+        };
+
+        loadTimeOfUseRates();
+    }, []);
+
+    const handleHoursSelected = (hours: number[]) => {
+        setSelectedHours(hours);
+    };
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number | null = null) => {
+        if (index !== null) {
+            const newEntries = [...chargerEntries];
+            const name = e.target.name as keyof ChargerEntry;
+            newEntries[index][name] = e.target.value;
+            setChargerEntries(newEntries);
+        } else {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
+        }
+    };
+
+    // const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number) => {
+    //     const { name, value } = e.target;
+    //     const newEntries = Array.isArray(formData.chargerEntries) ? [...formData.chargerEntries] : [];
+    //     const entry = newEntries[index];
+    //     if (entry) {
+    //         if (name === 'chargerType') {
+    //             entry.chargerType = value;
+    //         } else if (name === 'chargerCount') {
+    //             entry.chargerCount = value;
+    //         }
+    //         setFormData({ ...formData, chargerEntries: newEntries });
     //     }
     // };
 
-    const handleChargerEntryChange = (index: number, field: keyof ChargerEntry, value: string) => {
-        const newEntries = [...formData.chargerEntries];
-        if (newEntries[index]) {
-            newEntries[index][field] = value;
-            setFormData({ ...formData, chargerEntries: newEntries });
-        }
-    };
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number) => {
-        const { name, value } = e.target;
-        const newEntries = Array.isArray(formData.chargerEntries) ? [...formData.chargerEntries] : [];
-        const entry = newEntries[index];
-        if (entry) {
-            if (name === 'chargerType') {
-                entry.chargerType = value;
-            } else if (name === 'chargerCount') {
-                entry.chargerCount = value;
-            }
-            setFormData({ ...formData, chargerEntries: newEntries });
-        }
-    };
-
-    const addCharger = () => {
-        setFormData({
-            ...formData,
-            chargerEntries: [...formData.chargerEntries, { chargerType: '', chargerCount: '' }],
-        });
-    };
-
-    const removeCharger = (index: number) => {
-        const newEntries = formData.chargerEntries.filter((_, i) => i !== index);
-        setFormData({ ...formData, chargerEntries: newEntries });
-    };
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -202,6 +205,12 @@ const MainForm = () => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
         validateInput(name, value);
+    };
+
+    const handleChargerEntryChange = (index: number, field: keyof ChargerEntry, value: string) => {
+        const newEntries = [...formData.chargerEntries];
+        newEntries[index][field] = value;
+        setFormData({ ...formData, chargerEntries: newEntries });
     };
 
     const handleBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -241,17 +250,15 @@ const MainForm = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    // const addCharger = () => {
-    //     setChargerEntries([...chargerEntries, { chargerType: '', chargerCount: '' }]);
-    // };
+    const addCharger = () => {
+        setChargerEntries([...chargerEntries, { chargerType: '', chargerCount: '' }]);
+    };
 
-    // const removeCharger = (index: number) => {
-    //     const newEntries = chargerEntries.filter((_, i) => i !== index);
-    //     setChargerEntries(newEntries);
-    // };
+    const removeCharger = (index: number) => {
+        const newEntries = chargerEntries.filter((_, i) => i !== index);
+        setChargerEntries(newEntries);
+    };
 
-    // const nextStep = () => setStep(step + 1);
-    // const prevStep = () => setStep(step > 1 ? step - 1 : step);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -261,21 +268,17 @@ const MainForm = () => {
 
         const payload = {
             ...formData,
-            chargers: chargerEntries
+            chargers: chargerEntries,
+            selectedHours: selectedHours
         }
         try {
-            // const results = await postResults(payload);
-            // router.push({
-            //   pathname: '/Results', // Ensure the route matches the file name case
-            //   query: { data: JSON.stringify(results) }
-            // });
-
             setLoading(true);
             const results = await postResults(payload);
             const queryParams = new URLSearchParams({
                 data: JSON.stringify(results),
                 formData: JSON.stringify(payload)
             }).toString();
+            console.log('Submitting selected hours:', selectedHours);
             router.push(`/Results?${queryParams}`);
         } catch (error) {
             console.error('Failed to submit form data:', error);
@@ -295,8 +298,8 @@ const MainForm = () => {
                         <FsTitle className="fs-title">Vehicle Selection</FsTitle>
                         <StyledTextField type="number" name="numVehicles" label="Number of Vehicles" required value={formData.numVehicles} onChange={handleInputChange} onBlur={handleBlur} />
                         <StyledTextField type="number" name="milesDrivenPerDay" label="Miles Driven Per Day" required value={formData.milesDrivenPerDay} onChange={handleInputChange} onBlur={handleBlur} />
-                        <StyledTextField type="number" name="batterySize" step="any" label="Vehicle Battery Size" required value={formData.batterySize} onChange={handleInputChange} onBlur={handleBlur} />
-                        <StyledTextField type="number" name="vehicleEfficiency" step="any" label="Vehicle Efficiency" required value={formData.vehicleEfficiency} onChange={handleInputChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="batterySize" label="Vehicle Battery Size" required value={formData.batterySize} onChange={handleInputChange} onBlur={handleBlur} />
+                        <StyledTextField type="number" name="vehicleEfficiency" label="Vehicle Efficiency" required value={formData.vehicleEfficiency} onChange={handleInputChange} onBlur={handleBlur} />
                         <ActionButton type="button" className="next action-button" onClick={() => setActiveStep(1)}>Next</ActionButton>
                     </Fieldset>
                 )}
@@ -323,7 +326,7 @@ const MainForm = () => {
                                             </option>
                                         ))}
                                     </Select>
-                                    <StyledTextField type="number" name="chargerCount" label="Count of Charger" required value={entry.chargerCount} onChange={e => handleChargerEntryChange(index, 'chargerCount', e.target.value)} />
+                                    <StyledTextField type="number" name="chargerCount" label="Count of Charger" required value={entry.chargerCount} onChange={e => handleChange(e, index)} />
                                     {chargerEntries.length > 1 && (
                                         <RemoveButton type="button" className='remove-button' onClick={() => removeCharger(index)}>Remove</RemoveButton>
                                     )}
@@ -338,7 +341,15 @@ const MainForm = () => {
                 )}
                 {activeStep === 3 && (
                     <Fieldset>
-                        <FsTitle className="fs-title">Time of Year</FsTitle>
+                        <div className="MainForm">
+                            <ChargingSchedule
+                                timeOfUseRates={timeOfUseRates}
+                                season="Summer"
+                                dayType="Weekday"
+                                onHoursSelected={handleHoursSelected}
+                            />
+                        </div>
+                        {/* <FsTitle className="fs-title">Time of Year</FsTitle>
                         <Select name="season" value={formData.season} onChange={handleSelectChange}>
                             <option value="" disabled>-- Select Time of Year --</option>
                             <option value="Summer">Summer</option>
@@ -350,7 +361,7 @@ const MainForm = () => {
                             <option value="SOP">Super Off-Peak</option>
                             <option value="Off-Peak">Off-Peak</option>
                             <option value="On-Peak">On-Peak</option>
-                        </Select>
+                        </Select> */}
                         <ActionButton type="button" className="previous action-button" onClick={() => setActiveStep(2)}>Back</ActionButton>
                         <ActionButton type="submit" onClick={handleSubmit}>Calculate</ActionButton>
                         {errors.form && <p style={{ color: 'red' }}>{errors.form}</p>}

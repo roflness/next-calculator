@@ -1,6 +1,8 @@
 import React, { useState, useEffect, ChangeEvent, FocusEvent, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { fetchChargerTypes, postResults } from '../../app/api';
+import ChargingSchedule from './ChargingSchedule';
+import { fetchTimeOfUseRates } from '../../app/api';
 import {
     Msform,
     Fieldset2,
@@ -30,7 +32,6 @@ type FormInputs = {
     chargingDaysPerWeek: string;
     season: string;
     timeOfDay: string;
-    // chargers: ChargerEntry[];
     chargerEntries: ChargerEntry[];
 };
 
@@ -130,32 +131,6 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
         validateForm();
     }, []);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number | null = null) => {
-        const { name, value } = e.target;
-        if (index !== null) {
-            const newEntries = [...chargerEntries];
-            const name = e.target.name as keyof ChargerEntry;
-            newEntries[index][name] = e.target.value;
-            setChargerEntries(newEntries);
-        } else {
-            setLocalFormData({ ...localFormData, [e.target.name]: e.target.value });
-            validateInput(e.target.name, e.target.value);
-            //   setErrors({ ...errors, [name]: validationError });
-        }
-    };
-
-    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setLocalFormData({ ...localFormData, [name]: value });
-        validateInput(name, value);
-    };
-
-    const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setLocalFormData({ ...localFormData, [name]: value });
-        validateInput(name, value);
-    };
-
     const handleBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         validateInput(e.target.name, e.target.value);
     };
@@ -216,13 +191,51 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
         setLocalFormData({ ...localFormData, chargerEntries: newEntries });
     };
 
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number | null = null) => {
+        const { name, value } = e.target;
+        if (index !== null) {
+            const newEntries = [...chargerEntries];
+            const name = e.target.name as keyof ChargerEntry;
+            newEntries[index][name] = e.target.value;
+            setChargerEntries(newEntries);
+        } else {
+            setLocalFormData({ ...localFormData, [e.target.name]: e.target.value });
+            validateInput(e.target.name, e.target.value);
+            //   setErrors({ ...errors, [name]: validationError });
+        }
+    };
+
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setLocalFormData({ ...localFormData, [name]: value });
+        validateInput(name, value);
+    };
+
+    const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setLocalFormData({ ...localFormData, [name]: value });
+        validateInput(name, value);
+    };
+
+    // const addCharger = () => {
+    //     setChargerEntries([...chargerEntries, { chargerType: '', chargerCount: '' }]);
+    // };
+
+    // const removeCharger = (index: number) => {
+    //     const newEntries = chargerEntries.filter((_, i) => i !== index);
+    //     setChargerEntries(newEntries);
+    // };
+
     const addCharger = () => {
-        setChargerEntries([...chargerEntries, { chargerType: '', chargerCount: '' }]);
+        setLocalFormData({
+            ...localFormData,
+            chargerEntries: [...formData.chargerEntries, { chargerType: '', chargerCount: '' }],
+        });
     };
 
     const removeCharger = (index: number) => {
-        const newEntries = chargerEntries.filter((_, i) => i !== index);
-        setChargerEntries(newEntries);
+        const newEntries = localFormData.chargerEntries.filter((_, i) => i !== index);
+        setLocalFormData({ ...localFormData, chargerEntries: newEntries });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -322,9 +335,13 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
 
                     <FsTitle className="fs-title">Charger Selection</FsTitle>
                     <ChargerSelectionContainer className="charger-selection-container" id="charger-container">
-                        {localFormData.chargerEntries?.map((chargerEntries, index) => (
+                        {localFormData.chargerEntries.map((entry, index) => (
                             <div key={index} className="charger-entry">
-                                <Select name="chargerType" onChange={e => handleChange(e, index)} value={chargerEntries.chargerType}>
+                                <Select
+                                    name="chargerType"
+                                    value={entry.chargerType}
+                                    onChange={(e) => handleChargerEntryChange(index, 'chargerType', e.target.value)}
+                                >
                                     <option value="" disabled>-- Select Charger Type --</option>
                                     {chargerTypes.map((charger) => (
                                         <option key={charger.charger_type_id} value={charger.charger_type_id}>
@@ -332,9 +349,22 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
                                         </option>
                                     ))}
                                 </Select>
-                                <StyledTextField2 type="number" name="chargerCount" label="Count of Charger" required value={chargerEntries.chargerCount} onChange={e => handleChargerEntryChange(index, 'chargerCount', e.target.value)} />
+                                <StyledTextField2
+                                    type="number"
+                                    name="chargerCount"
+                                    label="Count of Charger"
+                                    required
+                                    value={entry.chargerCount}
+                                    onChange={(e) => handleChargerEntryChange(index, 'chargerCount', e.target.value)}
+                                />
                                 {localFormData.chargerEntries.length > 1 && (
-                                    <RemoveButton type="button" className='remove-button' onClick={() => removeCharger(index)}>Remove</RemoveButton>
+                                    <RemoveButton
+                                        type="button"
+                                        className="remove-button"
+                                        onClick={() => removeCharger(index)}
+                                    >
+                                        Remove
+                                    </RemoveButton>
                                 )}
                             </div>
                         ))}
