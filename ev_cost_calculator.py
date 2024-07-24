@@ -32,24 +32,24 @@ def get_charger_config_by_id(charger_type_id):
     return charger_configurations.get(str(charger_type_id), None)
 
 # Consumption rates
-rates = {
-    'Summer': {
-        'On-Peak': 0.37,
-        'Off-Peak': 0.16,
-        'SOP': 0.14
-    },
-    # March and April have different SOP and Off-Peak hours during the weekdays. weekends are the same
-    'Winter (March and April)': {
-        'On-Peak': 0.35,
-        'Off-Peak': 0.15,
-        'SOP': 0.14
-    },
-    'Winter (excluding March and April)': {
-        'On-Peak': 0.35,
-        'Off-Peak': 0.15,
-        'SOP': 0.14
-    }
-}
+# rates = {
+#     'Summer': {
+#         'On-Peak': 0.37,
+#         'Off-Peak': 0.16,
+#         'SOP': 0.14
+#     },
+#     # March and April have different SOP and Off-Peak hours during the weekdays. weekends are the same
+#     'Winter (March and April)': {
+#         'On-Peak': 0.35,
+#         'Off-Peak': 0.15,
+#         'SOP': 0.14
+#     },
+#     'Winter (excluding March and April)': {
+#         'On-Peak': 0.35,
+#         'Off-Peak': 0.15,
+#         'SOP': 0.14
+#     }
+# }
 
 # Basic service fee based on load
 def get_basic_service_fee(load_kw):
@@ -97,22 +97,36 @@ def get_usage_subscription_fee(usage_load_kw):
     highest_threshold = sorted_thresholds[-1]
     return int(highest_threshold), subscription_fees[highest_threshold]['level'], subscription_fees[highest_threshold]['fee']
 
-def get_season_config(month):
-    if month in [3, 4]:  # March and April
-        return rates['Winter (March and April)']
-    elif month in [11, 12, 1, 2]:  # November to February excluding March and April
-        return rates['Winter (excluding March and April)']
-    else:
-        return rates['Summer']
+# def get_season_config(month):
+#     if month in [3, 4]:  # March and April
+#         return rates['Winter (March and April)']
+#     elif month in [11, 12, 1, 2]:  # November to February excluding March and April
+#         return rates['Winter (excluding March and April)']
+#     else:
+#         return rates['Summer']
 
 # Function to calculate EV cost
-def calculate_ev_cost(total_distance_per_week, season, time_of_day, usage_load_kw, vehicle_efficiency, subscription_fee):
+# def calculate_ev_cost(total_distance_per_week, season, time_of_day, usage_load_kw, vehicle_efficiency, subscription_fee):
+#     basic_service_fee = get_usage_basic_service_fee(usage_load_kw)
+#     consumption_fee = rates[season][time_of_day]
+#     total_ev_cost = (((total_distance_per_week / vehicle_efficiency) * consumption_fee) * 4.345 ) + basic_service_fee + subscription_fee
+
+#     return total_ev_cost
+
+def calculate_ev_cost(total_distance_per_week, selected_hours, vehicle_efficiency, usage_load_kw, subscription_fee):
+    # Step 1: Calculate the total kWh needed
+    total_kwh_needed = total_distance_per_week / vehicle_efficiency
+    
+    # Step 2: Calculate the total charging capacity during selected hours
+    total_kwh_available = sum(hour * 0.1 for hour in selected_hours)  # Replace with actual rate calculation
+    
+    # Step 3: Calculate the consumption fee based on the kWh needed and available rates
+    consumption_fee = (total_kwh_needed / total_kwh_available) * sum(hour * 0.1 for hour in selected_hours)  # Example calculation
+
+    # Step 4: Add basic service fee and subscription fee
     basic_service_fee = get_usage_basic_service_fee(usage_load_kw)
-    consumption_fee = rates[season][time_of_day]
-    total_ev_cost = (((total_distance_per_week / vehicle_efficiency) * consumption_fee) * 4.345 ) + basic_service_fee + subscription_fee
-    # print(f"Total Distance traveled for {num_vehicles} vehicles driving {miles_driven_per_day} miles/day for {charging_days_per_week} days/week: {total_distance_per_week}")
-    # ev_cost_per_mile = (consumption_fee) / vehicle_efficiency
-    # total_ev_cost = (ev_cost_per_mile * total_distance_per_week) + basic_service_fee + subscription_fee
+    total_ev_cost = consumption_fee + basic_service_fee + subscription_fee
+
     return total_ev_cost
 
 # Function to calculate ICE cost
@@ -122,7 +136,7 @@ def calculate_ice_cost(total_distance_per_week, gas_price, ice_efficiency):
     return monthly_ice_cost
 
 # Function to calculate total load and costs for multiple vehicles
-def calculate_total_costs(num_vehicles, battery_size, vehicle_efficiency, chargers, miles_driven_per_day, charging_days_per_week, season, time_of_day, charging_hours_per_day,gas_price,ice_efficiency):
+def calculate_total_costs(num_vehicles, battery_size, vehicle_efficiency, chargers, miles_driven_per_day, charging_days_per_week, selected_hours, charging_hours_per_day,gas_price,ice_efficiency):
     # Calculate total distance per week based on daily mileage and operational days
     total_distance_per_week = miles_driven_per_day * charging_days_per_week * num_vehicles
     usage_load_kw = 0
@@ -153,12 +167,38 @@ def calculate_total_costs(num_vehicles, battery_size, vehicle_efficiency, charge
     usage_load_kw = usage_load_kw * charging_hours_per_day # max charger output per day based on charging behavior
 
     subscription_threshold, subscription_level, subscription_fee = get_usage_subscription_fee(usage_load_kw)
-    total_ev_cost = calculate_ev_cost(total_distance_per_week, season, time_of_day, usage_load_kw, vehicle_efficiency, subscription_fee)
+    total_ev_cost = calculate_ev_cost(total_distance_per_week, selected_hours, vehicle_efficiency, usage_load_kw, subscription_fee)
 
     # Calculate ICE vehicle costs
     monthly_ice_cost = calculate_ice_cost(total_distance_per_week, gas_price, ice_efficiency)
     monthly_ice_cost_one_vehicle = monthly_ice_cost / num_vehicles
     return total_ev_cost, monthly_ice_cost, monthly_ice_cost_one_vehicle, usage_load_kw, subscription_threshold, subscription_level, subscription_fee, hourly_usage_load_kw, charging_hours_needed_daily, usage_subscription_threshold, usage_subscription_level, usage_subscription_fee
+
+
+# def calculate_total_costs(num_vehicles, battery_size, vehicle_efficiency, processed_chargers, miles_driven_per_day, charging_days_per_week, selected_hours, charging_hours_per_day, gas_price, ice_efficiency):
+#     # Calculate total distance per week
+#     total_distance_per_week = num_vehicles * miles_driven_per_day * charging_days_per_week
+
+#     # Placeholder values for other parameters
+#     usage_load_kw = 50  # Placeholder
+#     subscription_fee = 20  # Placeholder
+
+#     # Calculate total EV cost using selected hours
+#     total_ev_cost = calculate_ev_cost(total_distance_per_week, selected_hours, vehicle_efficiency, usage_load_kw, subscription_fee)
+
+#     # Other calculations (placeholders)
+#     monthly_ice_cost = 100  # Placeholder
+#     monthly_ice_cost_one_vehicle = monthly_ice_cost / num_vehicles
+#     subscription_threshold = 30  # Placeholder
+#     subscription_level = 2  # Placeholder
+#     hourly_usage_load_kw = 5  # Placeholder
+#     charging_hours_needed_daily = 6  # Placeholder
+#     usage_subscription_threshold = 10  # Placeholder
+#     usage_subscription_level = 1  # Placeholder
+#     usage_subscription_fee = 10  # Placeholder
+
+#     return total_ev_cost, monthly_ice_cost, monthly_ice_cost_one_vehicle, usage_load_kw, subscription_threshold, subscription_level, subscription_fee, hourly_usage_load_kw, charging_hours_needed_daily, usage_subscription_threshold, usage_subscription_level, usage_subscription_fee
+
 
 # Adjusted Function for Total Costs to Reflect Changes
 def calculate_total_costs_weekly(num_vehicles, miles_driven_per_day, charging_days_per_week, vehicle_efficiency, season, time_of_day):
@@ -169,6 +209,7 @@ def calculate_total_costs_weekly(num_vehicles, miles_driven_per_day, charging_da
     total_weekly_ev_cost = ev_cost_per_mile * total_distance_per_week
     # weekly_ev_cost = calculate_weekly_ev_cost(total_distance_per_week, season, time_of_day)
     return total_weekly_ev_cost
+
 
 # Adjusted Function to Calculate Monthly Costs Including All Fees
 def calculate_monthly_costs(weekly_ev_cost, usage_load_kw):
@@ -205,13 +246,33 @@ def calculate_monthly_charger_throughput_v2(kwh_charger_output_daily,charging_da
     return kwh_charger_output_monthly, load_kw, max_subscription_threshold, max_subscription_level, max_subscription_fee
 
 # Function to calculate costs of total throughput of chargers
-def calculate_charger_throughput_costs(kwh_charger_output_weekly, kwh_charger_output_monthly, season, time_of_day, load_kw):
+def calculate_charger_throughput_costs(kwh_charger_output_weekly, kwh_charger_output_monthly, selected_hours, load_kw):
+    # Calculate the basic service fee based on load kW
     basic_service_fee = get_basic_service_fee(load_kw)
+    
+    # Get the subscription fee based on load kW
     subscription_threshold, subscription_level, subscription_fee = get_subscription_fee(load_kw)
-    consumption_fee = rates[season][time_of_day]
-    charger_output_costs_weekly = kwh_charger_output_weekly * consumption_fee
-    charger_output_costs_monthly = (kwh_charger_output_monthly * consumption_fee) + basic_service_fee + subscription_fee
+    
+    # Calculate the consumption fee based on selected hours
+    total_hours = len(selected_hours)
+    if total_hours > 0:
+        average_consumption_rate = sum(hour * 0.1 for hour in selected_hours) / total_hours  # Replace 0.1 with actual rate calculation
+    else:
+        average_consumption_rate = 0
+
+    # Calculate weekly and monthly costs
+    charger_output_costs_weekly = kwh_charger_output_weekly * average_consumption_rate
+    charger_output_costs_monthly = (kwh_charger_output_monthly * average_consumption_rate) + basic_service_fee + subscription_fee
+    
     return charger_output_costs_weekly, charger_output_costs_monthly
+
+# def calculate_charger_throughput_costs(kwh_charger_output_weekly, kwh_charger_output_monthly, season, time_of_day, load_kw):
+#     basic_service_fee = get_basic_service_fee(load_kw)
+#     subscription_threshold, subscription_level, subscription_fee = get_subscription_fee(load_kw)
+#     consumption_fee = rates[season][time_of_day]
+#     charger_output_costs_weekly = kwh_charger_output_weekly * consumption_fee
+#     charger_output_costs_monthly = (kwh_charger_output_monthly * consumption_fee) + basic_service_fee + subscription_fee
+#     return charger_output_costs_weekly, charger_output_costs_monthly
 
 
 # def calculate_optimized_charging(num_vehicles, miles_driven_per_day, vehicle_efficiency, chargers, charging_hours_per_day):
@@ -231,6 +292,7 @@ def calculate_charger_throughput_costs(kwh_charger_output_weekly, kwh_charger_ou
 #     return optimal_charging_kw
 
 # Function using the charger list to calculate if the specified chargers is enough to accommodate the vehicle's operational needs
+
 def is_charging_sufficient_v2(num_vehicles, miles_driven_per_day, vehicle_efficiency, chargers, charging_hours_per_day):
     total_daily_distance = num_vehicles * miles_driven_per_day
     total_daily_energy_needed = total_daily_distance / vehicle_efficiency
@@ -276,13 +338,13 @@ def calculate_charging_costs(chargers, miles_driven_per_day, vehicle_efficiency,
         total_costs[charger["type"]] = cost_per_charger * charger["count"]
     return total_costs
 
-def get_season_config(month):
-    if month in [3, 4]:  # March and April
-        return 'Winter (March and April)'
-    elif month in [10, 11, 12, 1, 2]:  # November to February excluding March and April
-        return 'Winter (excluding March and April)'
-    else:
-        return 'Summer'
+# def get_season_config(month):
+#     if month in [3, 4]:  # March and April
+#         return 'Winter (March and April)'
+#     elif month in [10, 11, 12, 1, 2]:  # November to February excluding March and April
+#         return 'Winter (excluding March and April)'
+#     else:
+#         return 'Summer'
 
 def calculate_ghg_reduction(gas_mj_per_gal, gas_unadjusted_ci, elec_mj_per_gal, elec_unadjusted_ci, num_vehicles, miles_driven_per_day, charging_days_per_week, ice_efficiency, vehicle_efficiency):
     miles_driven = (miles_driven_per_day * charging_days_per_week * num_vehicles) 

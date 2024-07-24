@@ -39,11 +39,9 @@ type FormData = {
     milesDrivenPerDay: string;
     batterySize: string;
     vehicleEfficiency: string;
-    chargingHoursPerDay: string;
     chargingDaysPerWeek: string;
     season: string;
     timeOfDay: string;
-    // chargers: ChargerEntry[];
     chargerEntries: ChargerEntry[];
 };
 
@@ -69,7 +67,7 @@ const MainForm = () => {
         milesDrivenPerDay: '',
         batterySize: '',
         vehicleEfficiency: '',
-        chargingHoursPerDay: '',
+        // chargingHoursPerDay: '',
         chargingDaysPerWeek: '',
         season: '',
         timeOfDay: '',
@@ -116,18 +114,10 @@ const MainForm = () => {
         return '';
     };
 
-    const validateChargingHoursPerDay = (value: string) => {
-        const numValue = parseInt(value, 10);
-        if (numValue < 1 || numValue > 24) {
-            return 'Charging hours per day must be between 1 and 24.';
-        }
-        return '';
-    };
-
     const validateChargingDaysPerWeek = (value: string) => {
         const numValue = parseInt(value, 10);
         if (numValue < 1 || numValue > 7) {
-            return 'Charging days per week must be between 1 and 7.';
+            return 'Working days per week must be between 1 and 7.';
         }
         return '';
     };
@@ -180,21 +170,6 @@ const MainForm = () => {
         }
     };
 
-    // const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number) => {
-    //     const { name, value } = e.target;
-    //     const newEntries = Array.isArray(formData.chargerEntries) ? [...formData.chargerEntries] : [];
-    //     const entry = newEntries[index];
-    //     if (entry) {
-    //         if (name === 'chargerType') {
-    //             entry.chargerType = value;
-    //         } else if (name === 'chargerCount') {
-    //             entry.chargerCount = value;
-    //         }
-    //         setFormData({ ...formData, chargerEntries: newEntries });
-    //     }
-    // };
-
-
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -227,8 +202,8 @@ const MainForm = () => {
                 return validateBatterySize(value);
             case 'vehicleEfficiency':
                 return validateVehicleEfficiency(value);
-            case 'chargingHoursPerDay':
-                return validateChargingHoursPerDay(value);
+            // case 'chargingHoursPerDay':
+            //     return validateChargingHoursPerDay(value);
             case 'chargingDaysPerWeek':
                 return validateChargingDaysPerWeek(value);
             default:
@@ -306,8 +281,8 @@ const MainForm = () => {
                 {activeStep === 1 && (
                     <Fieldset>
                         <FsTitle className="fs-title">Charging Behavior</FsTitle>
-                        <StyledTextField type="number" name="chargingHoursPerDay" label="Charging Hours Per Day" required value={formData.chargingHoursPerDay} onChange={handleInputChange} onBlur={handleBlur} />
-                        <StyledTextField type="number" name="chargingDaysPerWeek" label="Charging Days Per Week" required value={formData.chargingDaysPerWeek} onChange={handleInputChange} onBlur={handleBlur} />
+                        {/* <StyledTextField type="number" name="chargingHoursPerDay" label="Charging Hours Per Day" required value={formData.chargingHoursPerDay} onChange={handleInputChange} onBlur={handleBlur} /> */}
+                        <StyledTextField type="number" name="chargingDaysPerWeek" label="Work Days (Per Week)" required value={formData.chargingDaysPerWeek} onChange={handleInputChange} onBlur={handleBlur} />
                         <ActionButton type="button" className="previous action-button" onClick={() => setActiveStep(0)}>Back</ActionButton>
                         <ActionButton type="button" className="next action-button" onClick={() => setActiveStep(2)}>Next</ActionButton>
                     </Fieldset>

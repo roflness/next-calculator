@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
-from ev_cost_calculator import load_charger_configurations, get_charger_config_by_id, calculate_charger_throughput_costs, calculate_charging_costs, calculate_ev_cost, calculate_ghg_reduction, calculate_ice_cost, calculate_monthly_charger_throughput_v2, calculate_monthly_costs, calculate_savings, calculate_total_charger_output, calculate_total_costs, calculate_total_costs_weekly, calculate_weekly_charger_throughput, get_basic_service_fee, get_season_config, get_subscription_fee, get_usage_basic_service_fee, get_usage_subscription_fee, is_charging_sufficient_v2
+from ev_cost_calculator import load_charger_configurations, get_charger_config_by_id, calculate_charger_throughput_costs, calculate_charging_costs, calculate_ev_cost, calculate_ghg_reduction, calculate_ice_cost, calculate_monthly_charger_throughput_v2, calculate_monthly_costs, calculate_savings, calculate_total_charger_output, calculate_total_costs, calculate_total_costs_weekly, calculate_weekly_charger_throughput, get_basic_service_fee, get_subscription_fee, get_usage_basic_service_fee, get_usage_subscription_fee, is_charging_sufficient_v2
 import json
 import os
+import calendar
 
 app = Flask(__name__, static_folder='out', static_url_path='/')
 
@@ -85,8 +86,12 @@ def handle_results():
     vehicle_efficiency = float(data.get('vehicleEfficiency', 1))
     charging_hours_per_day = int(data.get('chargingHoursPerDay', 24))
     charging_days_per_week = int(data.get('chargingDaysPerWeek', 1))
-    season = data.get('season', 'Summer')
-    time_of_day = data.get('timeOfDay', 'Off-Peak')
+    # season = data.get('season', 'Summer')
+    # time_of_day = data.get('timeOfDay', 'Off-Peak')
+    selected_hours = data.get('selectedHours', [])
+
+    # Calculate charging_hours_per_day based on selected_hours
+    charging_hours_per_day = len(selected_hours)
 
     chargers = data.get('chargers', [])
     processed_chargers = []
@@ -109,32 +114,67 @@ def handle_results():
                 })
         except ValueError:
             continue  # Skip this charger if there's an error converting types
-    
-    # functions
+
+    # Calculate monthly costs for the entire year
+    def calculate_monthly_costs(selected_hours, month, num_days):
+        # Example calculation for monthly costs
+        basic_service_fee = 10.0
+        usage_subscription_fee = 5.0
+        consumption_fee = sum(hour * 0.1 for hour in selected_hours) * num_days  # Adjusted for number of days
+        total_monthly_cost = basic_service_fee + usage_subscription_fee + consumption_fee
+        return basic_service_fee, usage_subscription_fee, consumption_fee, total_monthly_cost
+
+    monthly_results = {}
+    annual_costs = {
+        "total_basic_service_fee": 0,
+        "total_subscription_fee": 0,
+        "total_consumption_fee": 0,
+        "total_monthly_ev_cost": 0,
+    }
+
+    for month in range(1, 13):
+        month_name = calendar.month_name[month]
+        num_days = calendar.monthrange(2024, month)[1]  # Assuming year 2024 for example
+        basic_service_fee, usage_subscription_fee, consumption_fee, total_monthly_cost = calculate_monthly_costs(selected_hours, month, num_days)
+        
+        monthly_results[month_name] = {
+            "basic_service_fee": basic_service_fee,
+            "subscription_fee": usage_subscription_fee,
+            "consumption_fee": consumption_fee,
+            "total_monthly_cost": total_monthly_cost,
+        }
+
+        annual_costs["total_basic_service_fee"] += basic_service_fee
+        annual_costs["total_subscription_fee"] += usage_subscription_fee
+        annual_costs["total_consumption_fee"] += consumption_fee
+        annual_costs["total_monthly_ev_cost"] += total_monthly_cost
+
+    annual_costs["average_monthly_ev_cost"] = annual_costs["total_monthly_ev_cost"] / 12
+
     sufficient, total_energy_needed, total_charging_capacity, total_number_chargers, kw_average, charger_type_count, additional_chargers_needed = is_charging_sufficient_v2(num_vehicles, miles_driven_per_day, vehicle_efficiency, processed_chargers, charging_hours_per_day)
-    
+
     if sufficient:
         optimal_charging_kw = total_energy_needed / charging_hours_per_day
     else:
         optimal_charging_kw = total_charging_capacity / charging_hours_per_day
 
-    total_ev_cost, monthly_ice_cost, monthly_ice_cost_one_vehicle, usage_load_kw, subscription_threshold, subscription_level, subscription_fee, hourly_usage_load_kw, charging_hours_needed_daily, usage_subscription_threshold, usage_subscription_level, usage_subscription_fee = calculate_total_costs(num_vehicles, battery_size, vehicle_efficiency, processed_chargers, miles_driven_per_day, charging_days_per_week, season, time_of_day, charging_hours_per_day,gas_price,ice_efficiency)        
-    weekly_ev_cost = calculate_total_costs_weekly(num_vehicles, miles_driven_per_day, charging_days_per_week, vehicle_efficiency, season, time_of_day)
-    monthly_ev_cost = calculate_monthly_costs(weekly_ev_cost, optimal_charging_kw)
-    monthly_savings = calculate_savings(monthly_ice_cost, monthly_ev_cost)
+    total_ev_cost, monthly_ice_cost, monthly_ice_cost_one_vehicle, usage_load_kw, subscription_threshold, subscription_level, subscription_fee, hourly_usage_load_kw, charging_hours_needed_daily, usage_subscription_threshold, usage_subscription_level, usage_subscription_fee = calculate_total_costs(
+        num_vehicles, battery_size, vehicle_efficiency, processed_chargers, miles_driven_per_day, charging_days_per_week, selected_hours, charging_hours_per_day, gas_price, ice_efficiency)
+
+    # ICE cost comparison (assuming constant ICE cost across the year for simplicity)
+    total_ice_cost = monthly_ice_cost * 12
+    monthly_ice_cost_one_vehicle = total_ice_cost / 12  # Assuming total_ice_cost is for all vehicles
+
+    monthly_savings = calculate_savings(monthly_ice_cost, annual_costs["average_monthly_ev_cost"])
     ghg_reduction_result = calculate_ghg_reduction(gas_mj_per_gal, gas_unadjusted_ci, elec_mj_per_gal, elec_unadjusted_ci, num_vehicles, miles_driven_per_day, charging_days_per_week, ice_efficiency, vehicle_efficiency)
-    
+
     usage_load_kw_basic_service_fee = get_basic_service_fee(usage_load_kw)
 
     kwh_charger_output_daily, kwh_charger_output_weekly = calculate_weekly_charger_throughput(processed_chargers, charging_hours_per_day, charging_days_per_week)
     kwh_charger_output_monthly, load_kw, max_subscription_threshold, max_subscription_level, max_subscription_fee = calculate_monthly_charger_throughput_v2(kwh_charger_output_daily, charging_days_per_week, processed_chargers, charging_hours_per_day)
-    charger_output_costs_weekly, charger_output_costs_monthly = calculate_charger_throughput_costs(kwh_charger_output_weekly, kwh_charger_output_monthly, season, time_of_day, load_kw)
+    charger_output_costs_weekly, charger_output_costs_monthly = calculate_charger_throughput_costs(kwh_charger_output_weekly, kwh_charger_output_monthly, selected_hours, load_kw)
 
     max_load_kw_basic_service_fee = get_basic_service_fee(load_kw)
-
-    # functions to calculate
-    # optimal_charging_kw = calculate_optimized_charging(num_vehicles, miles_driven_per_day, vehicle_efficiency, chargers, charging_hours_per_day)
-    # basic_service_fee = get_basic_service_fee(optimal_charging_kw)
 
     if sufficient:
         optimal_charging_kw = total_energy_needed / charging_hours_per_day
@@ -142,7 +182,6 @@ def handle_results():
         optimal_charging_kw = total_charging_capacity / charging_hours_per_day
 
     basic_service_fee = get_basic_service_fee(optimal_charging_kw)
-
 
     # Prepare the output message
     if sufficient:
@@ -154,41 +193,25 @@ def handle_results():
         message += "an avg " if charger_type_count > 1 else "a "
         message += f"rating of {kw_average:.2f} kW is NOT sufficient for vehicle operation and charging behavior.. Total daily energy needed: {total_energy_needed:.2f} kWh, Total daily charging capacity: {total_charging_capacity:.2f} kWh. \n"
         message += f"Additional chargers needed with the same kW rating: {additional_chargers_needed}"
-    
+
     results = {
-        "max_load_kw_basic_service_fee": max_load_kw_basic_service_fee,
-        "num_vehicles": num_vehicles,
-        "load_kw": load_kw,
-        "max_subscription_threshold": max_subscription_threshold,
-        "max_subscription_fee": max_subscription_fee,
-        "max_subscription_level": max_subscription_level,
-        "monthly_ev_cost": monthly_ev_cost,
+        "annual_costs": annual_costs,
+        "monthly_results": monthly_results,
+        "total_ev_cost": total_ev_cost,
+        "total_ice_cost": total_ice_cost,
         "monthly_savings": monthly_savings,
+        "ghg_reduction_result": ghg_reduction_result,
         "message": message,
         "chargers": processed_chargers,
-        "monthly_ice_cost": monthly_ice_cost,
-        "subscription_threshold": subscription_threshold,
-        "subscription_level": subscription_level,
-        "subscription_fee": subscription_fee,
-        "hourly_usage_load_kw": hourly_usage_load_kw,
-        "charging_hours_needed_daily": charging_hours_needed_daily,
-        "usage_subscription_threshold": usage_subscription_threshold,
-        "usage_subscription_level": usage_subscription_level,
-        "usage_subscription_fee": usage_subscription_fee,
-        "ghg_reduction_result": ghg_reduction_result,
-        "total_number_chargers": total_number_chargers,
-        "usage_load_kw": usage_load_kw,
-        "total_energy_needed": total_energy_needed,
-        "usage_load_kw_basic_service_fee": usage_load_kw_basic_service_fee,
-        "ice_efficiency": ice_efficiency,
-        "weekly_ev_cost": weekly_ev_cost,
-        "charging_days_per_week": charging_days_per_week,
-        "miles_driven_per_day": miles_driven_per_day,
-        "monthly_ice_cost_one_vehicle": monthly_ice_cost_one_vehicle,
-        "charger_output_costs_monthly": charger_output_costs_monthly,
-        "charger_output_costs_weekly": charger_output_costs_weekly,
         "optimal_charging_kw": optimal_charging_kw,
         "basic_service_fee": basic_service_fee,
+        "selected_hours": selected_hours,
+        "num_vehicles": num_vehicles,
+        "miles_driven_per_day": miles_driven_per_day,
+        "total_energy_needed": total_energy_needed,
+        "total_number_chargers": total_number_chargers,
+        "charging_hours_needed_daily": charging_hours_needed_daily,
+        "usage_load_kw": usage_load_kw
     }
 
     try:
@@ -196,8 +219,6 @@ def handle_results():
     except Exception as e:
         # logging.error("Error processing chargers: %s", e)
         return jsonify({"error": "Failed to process chargers"}), 500
-
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))  # Use port 5001 if PORT not set

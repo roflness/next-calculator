@@ -18,8 +18,6 @@ import {
     StyledTextField2,
 } from '../../styles/myComponentStyles';
 
-
-
 // Log the environment variable to ensure it's being picked up
 console.log('API_BASE_URL:', process.env.NEXT_PUBLIC_API_BASE_URL);
 
@@ -28,11 +26,23 @@ type FormInputs = {
     milesDrivenPerDay: string;
     batterySize: string;
     vehicleEfficiency: string;
-    chargingHoursPerDay: string;
     chargingDaysPerWeek: string;
     season: string;
     timeOfDay: string;
     chargerEntries: ChargerEntry[];
+    selectedHours: number[];
+};
+
+const defaultFormInputs: FormInputs = {
+    numVehicles: '',
+    milesDrivenPerDay: '',
+    batterySize: '',
+    vehicleEfficiency: '',
+    chargingDaysPerWeek: '',
+    season: '',
+    timeOfDay: '',
+    chargerEntries: [{ chargerType: '', chargerCount: '' }],
+    selectedHours: []
 };
 
 type ChargerEntry = {
@@ -50,19 +60,49 @@ const steps = ['Vehicle Selection', 'Charging Behavior', 'Charger Selection', 'T
 
 const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
     const router = useRouter();
-    const [localFormData, setLocalFormData] = useState<FormInputs>(formData);
-    const [chargerEntries, setChargerEntries] = useState<ChargerEntry[]>(formData.chargerEntries || [{ chargerType: '', chargerCount: '' }]);
+    const [localFormData, setLocalFormData] = useState<FormInputs>(defaultFormInputs);
+    const [timeOfUseRates, setTimeOfUseRates] = useState<any>(null);
     const [chargerTypes, setChargerTypes] = useState<ChargerType[]>([]);
-    // const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
 
     useEffect(() => {
-        const loadChargerTypes = async () => {
-            const chargers = await fetchChargerTypes();
-            setChargerTypes(chargers);
+        const fetchFormData = async () => {
+            const { formData } = router.query;
+            if (formData) {
+                const parsedFormData = JSON.parse(formData as string);
+                setLocalFormData(parsedFormData);
+            }
         };
+
+        const loadTimeOfUseRates = async () => {
+            try {
+                const rates = await fetchTimeOfUseRates();
+                setTimeOfUseRates(rates);
+            } catch (error) {
+                console.error('Error fetching time of use rates:', error);
+            }
+        };
+
+        const loadChargerTypes = async () => {
+            try {
+                const types = await fetchChargerTypes();
+                setChargerTypes(types);
+            } catch (error) {
+                console.error('Error fetching charger types:', error);
+            }
+        };
+
+        fetchFormData();
+        loadTimeOfUseRates();
         loadChargerTypes();
-        validateForm();
-    }, []);
+    }, [router.query]);
+
+    const handleHoursSelected = (hours: number[]) => {
+        setLocalFormData(prevData => ({
+            ...prevData,
+            selectedHours: hours
+        }));
+    };
 
     const validateNumVehicles = (value: string) => {
         const numValue = parseInt(value, 10);
@@ -96,30 +136,20 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
         return '';
     };
 
-    const validateChargingHoursPerDay = (value: string) => {
-        const numValue = parseInt(value, 10);
-        if (numValue < 1 || numValue > 24) {
-            return 'Charging hours per day must be between 1 and 24.';
-        }
-        return '';
-    };
-
     const validateChargingDaysPerWeek = (value: string) => {
         const numValue = parseInt(value, 10);
         if (numValue < 1 || numValue > 7) {
-            return 'Charging days per week must be between 1 and 7.';
+            return 'Work days per week must be between 1 and 7.';
         }
         return '';
     };
 
 
-    // const [chargerEntries, setChargerEntries] = useState<ChargerEntry[]>(formData.chargers || [{ chargerType: '', chargerCount: '' }]);  
-    // const [chargerTypes, setChargerTypes] = useState<ChargerType[]>([]);
+    const [chargerEntries, setChargerEntries] = useState<ChargerEntry[]>(localFormData.chargerEntries || [{ chargerType: '', chargerCount: '' }]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
 
     useEffect(() => {
         const loadChargerTypes = async () => {
@@ -128,66 +158,75 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
         };
 
         loadChargerTypes();
-        validateForm();
+        // validateForm();
     }, []);
 
     const handleBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         validateInput(e.target.name, e.target.value);
     };
 
-    const validateInput = (name: string, value: string) => {
-        switch (name) {
-            case 'numVehicles':
-                return validateNumVehicles(value);
-            case 'milesDrivenPerDay':
-                return validateMilesDrivenPerDay(value);
-            case 'batterySize':
-                return validateBatterySize(value);
-            case 'vehicleEfficiency':
-                return validateVehicleEfficiency(value);
-            case 'chargingHoursPerDay':
-                return validateChargingHoursPerDay(value);
-            case 'chargingDaysPerWeek':
-                return validateChargingDaysPerWeek(value);
-            default:
-                return 'Please fill in missing fields';
+    const validateInput = (field: string, value: any): string | null => {
+        if (field === 'numVehicles' && (!value || value <= 0)) {
+            return 'Number of vehicles is required';
         }
+        if (field === 'milesDrivenPerDay' && (!value || value <= 0)) {
+            return 'Miles driven per day is required';
+        }
+        if (field === 'batterySize' && (!value || value <= 0)) {
+            return 'Battery size is required';
+        }
+        if (field === 'vehicleEfficiency' && (!value || value <= 0)) {
+            return 'Vehicle efficiency is required';
+        }
+        if (field === 'chargingDaysPerWeek' && (!value || value <= 0)) {
+            return 'Charging days per week is required';
+        }
+        if (field === 'chargerType' && !value) {
+            return 'Charger type is required';
+        }
+        if (field === 'chargerCount' && (!value || value <= 0)) {
+            return 'Charger count is required and must be greater than 0';
+        }
+        return null;
     };
 
-    //   const validateForm = () => {
-    //     const newErrors: { [key: string]: string } = {};
-    //     Object.keys(formData).forEach((key) => {
-    //       const value = localFormData[key as keyof FormInputs];
-    //       const error = validateInput(key, value);
-    //       if (error) {
-    //         newErrors[key] = error;
-    //       }
-    //     });
-
-    //     setErrors(newErrors);
-    //     return Object.keys(newErrors).length === 0;
-    //   };
-
-    const validateForm = useCallback(() => {
+    const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
-        Object.keys(formData).forEach((key) => {
-            const value = localFormData[key as keyof FormInputs];
 
-            if (typeof value === 'string') {
+        // Validate all main form fields
+        Object.keys(localFormData).forEach((key) => {
+            if (key !== 'chargerEntries') { // Skip chargerEntries for now
+                const value = localFormData[key as keyof FormInputs];
                 const error = validateInput(key, value);
                 if (error) {
                     newErrors[key] = error;
                 }
             }
         });
+
+        // Validate each charger entry
+        localFormData.chargerEntries.forEach((entry, index) => {
+            const entryErrors: { [key: string]: string } = {};
+
+            Object.keys(entry).forEach((field) => {
+                const value = entry[field as keyof ChargerEntry];
+                const error = validateInput(field, value);
+                if (error) {
+                    entryErrors[`${field}-${index}`] = error;
+                }
+            });
+
+            // Merge entryErrors into newErrors
+            Object.assign(newErrors, entryErrors);
+        });
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-    }, [localFormData, formData]);
+    };
 
     const handleChargerEntryChange = (index: number, field: keyof ChargerEntry, value: string) => {
-        const newEntries = [...chargerEntries];
-        newEntries[index][field] = value;
-        setChargerEntries(newEntries);
+        const newEntries = [...localFormData.chargerEntries];
+        newEntries[index] = { ...newEntries[index], [field]: value };
         setLocalFormData({ ...localFormData, chargerEntries: newEntries });
     };
 
@@ -217,15 +256,6 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
         validateInput(name, value);
     };
 
-    // const addCharger = () => {
-    //     setChargerEntries([...chargerEntries, { chargerType: '', chargerCount: '' }]);
-    // };
-
-    // const removeCharger = (index: number) => {
-    //     const newEntries = chargerEntries.filter((_, i) => i !== index);
-    //     setChargerEntries(newEntries);
-    // };
-
     const addCharger = () => {
         setLocalFormData({
             ...localFormData,
@@ -233,26 +263,42 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
         });
     };
 
-    const removeCharger = (index: number) => {
+    const addChargerEntry = () => {
+        setLocalFormData(prevData => ({
+            ...prevData,
+            chargerEntries: [...prevData.chargerEntries, { chargerType: '', chargerCount: '' }]
+        }));
+    };
+
+    const removeChargerEntry = (index: number) => {
         const newEntries = localFormData.chargerEntries.filter((_, i) => i !== index);
         setLocalFormData({ ...localFormData, chargerEntries: newEntries });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('Submit button clicked');
         if (!validateForm()) {
+            console.log('Form validation failed');
             return;
         }
+
         const payload = {
             ...localFormData,
-            chargers: chargerEntries
-        }
+            chargers: localFormData.chargerEntries
+        };
+
+        console.log('Submitting payload:', payload);
+
         try {
+            setLoading(true);
             const results = await postResults(payload);
-            router.push({
-                pathname: '/Results', // Ensure the route matches the file name case
-                query: { data: JSON.stringify(results), formData: JSON.stringify(payload) }
-            });
+            console.log('Received results:', results); // Debug log
+            const queryParams = new URLSearchParams({
+                data: JSON.stringify(results),
+                localFormData: JSON.stringify(payload)
+            }).toString();
+            router.push(`/Results?${queryParams}`);
         } catch (error) {
             console.error('Failed to submit form data:', error);
             setError('Failed to submit form data. Please try again.');
@@ -310,22 +356,10 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
                     <FsTitle className="fs-title">Charging Behavior</FsTitle>
                     <StyledTextField2
                         type="number"
-                        name="chargingHoursPerDay"
-                        // min="1"
-                        // max="24"
-                        label="Charging Hours Per Day"
-                        required
-                        value={localFormData.chargingHoursPerDay}
-                        onChange={handleInputChange}
-                        onBlur={handleBlur}
-                    />
-                    {errors.chargingHoursPerDay && <p style={{ color: 'red' }}>{errors.chargingHoursPerDay}</p>}
-                    <StyledTextField2
-                        type="number"
                         name="chargingDaysPerWeek"
                         // min="1"
                         // max="7"
-                        label="Charging Days Per Week"
+                        label="Working Days Per Week"
                         required
                         value={localFormData.chargingDaysPerWeek}
                         onChange={handleInputChange}
@@ -335,6 +369,7 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
 
                     <FsTitle className="fs-title">Charger Selection</FsTitle>
                     <ChargerSelectionContainer className="charger-selection-container" id="charger-container">
+                        <FsTitle className="fs-title">Charger Selection</FsTitle>
                         {localFormData.chargerEntries.map((entry, index) => (
                             <div key={index} className="charger-entry">
                                 <Select
@@ -361,30 +396,27 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
                                     <RemoveButton
                                         type="button"
                                         className="remove-button"
-                                        onClick={() => removeCharger(index)}
+                                        onClick={() => removeChargerEntry(index)}
                                     >
                                         Remove
                                     </RemoveButton>
                                 )}
                             </div>
                         ))}
+                        <SecondaryButton type="button" onClick={addChargerEntry}>
+                            Add Charger
+                        </SecondaryButton>
                     </ChargerSelectionContainer>
                     <SecondaryButton type="button" className='secondary-button' onClick={addCharger}>Add Another Charger</SecondaryButton>
                     <br></br>
-
-                    <FsTitle className="fs-title">Time of Year</FsTitle>
-                    <Select name="season" value={localFormData.season} onChange={handleChange}>
-                        <option value="" disabled>-- Select Time of Year --</option>
-                        <option value="Summer">Summer</option>
-                        <option value="Winter (March and April)">Winter (March and April)</option>
-                        <option value="Winter (excluding March and April)">Winter (excluding March and April)</option>
-                    </Select>
-                    <Select name="timeOfDay" value={localFormData.timeOfDay} onChange={handleChange}>
-                        <option value="" disabled>-- Select Charging Time of Day --</option>
-                        <option value="SOP">Super Off-Peak</option>
-                        <option value="Off-Peak">Off-Peak</option>
-                        <option value="On-Peak">On-Peak</option>
-                    </Select>
+                    <div className="SecondaryForm">
+                        <ChargingSchedule
+                            timeOfUseRates={timeOfUseRates}
+                            season="Summer"
+                            dayType="Weekday"
+                            onHoursSelected={handleHoursSelected}
+                        />
+                    </div>
                     <ActionButton type="submit" onClick={handleSubmit}>Calculate</ActionButton>
                     {errors.form && <p style={{ color: 'red' }}>{errors.form}</p>}
                 </Fieldset2>

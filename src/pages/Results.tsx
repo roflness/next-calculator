@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import DashboardCard from '../components/shared/DashboardCard';
@@ -67,6 +67,7 @@ interface Data {
   charger_output_costs_weekly: number;
   chargers: ChargerType[];
   formData: FormData;
+  selected_hours: number[]; 
 }
 
 interface FormData {
@@ -79,17 +80,30 @@ interface FormData {
   season: string;
   timeOfDay: string;
   chargers: ChargerType[];
+  selectedHours: number[];
 }
 
 const Results = () => {
   const router = useRouter();
-  // const { data } = router.query;
-  const { data, formData } = router.query;
+  const { query } = router;
 
-  const results: Data = typeof data === 'string' ? JSON.parse(data) : {};
-  const initialFormData: FormData = typeof formData === 'string' ? JSON.parse(formData) : {};
-
+  const [results, setResults] = useState<Data | null>(null);
+  const [initialFormData, setInitialFormData] = useState<FormData | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    if (query.data && query.formData) {
+      console.log('Parsing query params'); // Debug log
+      const parsedData: Data = JSON.parse(query.data as string);
+      const parsedFormData: FormData = JSON.parse(query.formData as string);
+      setResults(parsedData);
+      setInitialFormData(parsedFormData);
+    }
+  }, [query]);
+
+  if (!results || !initialFormData) {
+    return <div>Loading...</div>;
+  }
 
   const safeToFixed = (value: any, decimals: number = 2) => {
     return value !== undefined && value !== null ? value.toFixed(decimals) : 'N/A';
@@ -114,6 +128,7 @@ const Results = () => {
     consumptionFee: results.charger_output_costs_monthly - results.max_load_kw_basic_service_fee - results.max_subscription_fee,
     totalMonthlyCost: results.charger_output_costs_monthly,
   };
+
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
