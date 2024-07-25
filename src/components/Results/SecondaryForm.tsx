@@ -63,38 +63,27 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
     const [localFormData, setLocalFormData] = useState<FormInputs>(defaultFormInputs);
     const [timeOfUseRates, setTimeOfUseRates] = useState<any>(null);
     const [chargerTypes, setChargerTypes] = useState<ChargerType[]>([]);
-
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchFormData = async () => {
-            const { formData } = router.query;
-            if (formData) {
-                const parsedFormData = JSON.parse(formData as string);
-                setLocalFormData(parsedFormData);
-            }
-        };
-
-        const loadTimeOfUseRates = async () => {
+        const fetchData = async () => {
             try {
                 const rates = await fetchTimeOfUseRates();
                 setTimeOfUseRates(rates);
-            } catch (error) {
-                console.error('Error fetching time of use rates:', error);
-            }
-        };
-
-        const loadChargerTypes = async () => {
-            try {
                 const types = await fetchChargerTypes();
                 setChargerTypes(types);
+                const { formData } = router.query;
+                if (formData) {
+                    const parsedFormData = JSON.parse(formData as string);
+                    setLocalFormData(parsedFormData);
+                }
             } catch (error) {
-                console.error('Error fetching charger types:', error);
+                console.error('Error fetching data:', error);
             }
         };
-
-        fetchFormData();
-        loadTimeOfUseRates();
-        loadChargerTypes();
+        fetchData();
     }, [router.query]);
 
     const handleHoursSelected = (hours: number[]) => {
@@ -147,19 +136,19 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
 
     const [chargerEntries, setChargerEntries] = useState<ChargerEntry[]>(localFormData.chargerEntries || [{ chargerType: '', chargerCount: '' }]);
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    // const [loading, setLoading] = useState(false);
+    // const [error, setError] = useState<string | null>(null);
+    // const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-    useEffect(() => {
-        const loadChargerTypes = async () => {
-            const chargers = await fetchChargerTypes();
-            setChargerTypes(chargers);
-        };
+    // useEffect(() => {
+    //     const loadChargerTypes = async () => {
+    //         const chargers = await fetchChargerTypes();
+    //         setChargerTypes(chargers);
+    //     };
 
-        loadChargerTypes();
-        // validateForm();
-    }, []);
+    //     loadChargerTypes();
+    //     // validateForm();
+    // }, []);
 
     const handleBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         validateInput(e.target.name, e.target.value);
@@ -293,10 +282,10 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
         try {
             setLoading(true);
             const results = await postResults(payload);
-            console.log('Received results:', results); // Debug log
+            console.log('Received results:', results);
             const queryParams = new URLSearchParams({
                 data: JSON.stringify(results),
-                localFormData: JSON.stringify(payload)
+                formData: JSON.stringify(payload)
             }).toString();
             router.push(`/Results?${queryParams}`);
         } catch (error) {
