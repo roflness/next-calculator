@@ -48,7 +48,7 @@ export const Msform = styled(Box)(({ theme }) => ({
     border: 'none',
     borderRadius: '3px',
     // boxShadow: '0 0 15px 1px rgba(0, 0, 0, 0.4)',
-    padding: '20px 30px',
+    padding: '10px 15px',
     boxSizing: 'border-box',
     width: '80%',
     margin: '0 10%',

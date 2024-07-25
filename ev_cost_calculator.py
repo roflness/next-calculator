@@ -74,28 +74,38 @@ def get_subscription_fee(load_kw):
     highest_threshold = sorted_thresholds[-1]
     return int(highest_threshold), subscription_fees[highest_threshold]['level'], subscription_fees[highest_threshold]['fee']
 
-# Basic service fee based on usage load
-def get_usage_basic_service_fee(usage_load_kw):
-    if usage_load_kw <= 500:
-        return 213.30
-    else:
-        return 766.91
+# # Basic service fee based on usage load
+# def get_usage_basic_service_fee(usage_load_kw):
+#     if usage_load_kw <= 500:
+#         return 213.30
+#     else:
+#         return 766.91
     
-# Function to get subscription fee based on usage load
-def get_usage_subscription_fee(usage_load_kw):
-    # Ensure subscription_fees is loaded correctly, might be a global or passed as a parameter
-    if not subscription_fees:
-        raise ValueError("Subscription fees are not defined.")
+# # Function to get subscription fee based on usage load
+# def get_usage_subscription_fee(usage_load_kw):
+#     # Ensure subscription_fees is loaded correctly, might be a global or passed as a parameter
+#     if not subscription_fees:
+#         raise ValueError("Subscription fees are not defined.")
     
-    # Convert keys to integers for proper comparison
-    sorted_thresholds = sorted(subscription_fees.keys(), key=int)
-    for threshold in sorted_thresholds:
-        if usage_load_kw <= int(threshold):
-            return int(threshold), subscription_fees[threshold]['level'], subscription_fees[threshold]['fee']
+#     # Convert keys to integers for proper comparison
+#     sorted_thresholds = sorted(subscription_fees.keys(), key=int)
+#     for threshold in sorted_thresholds:
+#         if usage_load_kw <= int(threshold):
+#             return int(threshold), subscription_fees[threshold]['level'], subscription_fees[threshold]['fee']
 
-    # Handle cases where usage_load_kw is greater than all thresholds
-    highest_threshold = sorted_thresholds[-1]
-    return int(highest_threshold), subscription_fees[highest_threshold]['level'], subscription_fees[highest_threshold]['fee']
+#     # Handle cases where usage_load_kw is greater than all thresholds
+#     highest_threshold = sorted_thresholds[-1]
+#     return int(highest_threshold), subscription_fees[highest_threshold]['level'], subscription_fees[highest_threshold]['fee']
+
+# Function to map month to season
+def get_season_for_month(month):
+    if month in [6, 7, 8, 9]:
+        return "Summer"
+    elif month in [3, 4]:
+        return "Winter (March and April)"
+    else:
+        return "Winter (excluding March and April)"
+
 
 # def get_season_config(month):
 #     if month in [3, 4]:  # March and April
@@ -124,7 +134,7 @@ def calculate_ev_cost(total_distance_per_week, selected_hours, vehicle_efficienc
     consumption_fee = (total_kwh_needed / total_kwh_available) * sum(hour * 0.1 for hour in selected_hours)  # Example calculation
 
     # Step 4: Add basic service fee and subscription fee
-    basic_service_fee = get_usage_basic_service_fee(usage_load_kw)
+    basic_service_fee = get_basic_service_fee(usage_load_kw)
     total_ev_cost = consumption_fee + basic_service_fee + subscription_fee
 
     return total_ev_cost
@@ -156,7 +166,7 @@ def calculate_total_costs(num_vehicles, battery_size, vehicle_efficiency, charge
     # charging_hours_needed_daily = remaining_battery_daily / is_charging_sufficient_v2(kw_average)
     
     hourly_usage_load_kw = (charging_hours_needed_daily) * (num_vehicles) # return back to this, needs to be rejiggered
-    usage_subscription_threshold, usage_subscription_level, usage_subscription_fee = get_usage_subscription_fee(hourly_usage_load_kw)
+    usage_subscription_threshold, usage_subscription_level, usage_subscription_fee = get_subscription_fee(hourly_usage_load_kw)
     
     for charger in chargers:
         if 'rating_kW' not in charger or 'count' not in charger:
@@ -166,7 +176,7 @@ def calculate_total_costs(num_vehicles, battery_size, vehicle_efficiency, charge
 
     usage_load_kw = usage_load_kw * charging_hours_per_day # max charger output per day based on charging behavior
 
-    subscription_threshold, subscription_level, subscription_fee = get_usage_subscription_fee(usage_load_kw)
+    subscription_threshold, subscription_level, subscription_fee = get_subscription_fee(usage_load_kw)
     total_ev_cost = calculate_ev_cost(total_distance_per_week, selected_hours, vehicle_efficiency, usage_load_kw, subscription_fee)
 
     # Calculate ICE vehicle costs
@@ -213,8 +223,8 @@ def calculate_total_costs_weekly(num_vehicles, miles_driven_per_day, charging_da
 
 # Adjusted Function to Calculate Monthly Costs Including All Fees
 def calculate_monthly_costs(weekly_ev_cost, usage_load_kw):
-    basic_service_fee = get_usage_basic_service_fee(usage_load_kw)
-    subscription_threshold, subscription_level, subscription_fee = get_usage_subscription_fee(usage_load_kw)
+    basic_service_fee = get_basic_service_fee(usage_load_kw)
+    subscription_threshold, subscription_level, subscription_fee = get_subscription_fee(usage_load_kw)
     monthly_ev_cost = (weekly_ev_cost * 4.345) + (basic_service_fee + subscription_fee)
     return monthly_ev_cost
 
@@ -347,7 +357,7 @@ def calculate_charging_costs(chargers, miles_driven_per_day, vehicle_efficiency,
 #         return 'Summer'
 
 def calculate_ghg_reduction(gas_mj_per_gal, gas_unadjusted_ci, elec_mj_per_gal, elec_unadjusted_ci, num_vehicles, miles_driven_per_day, charging_days_per_week, ice_efficiency, vehicle_efficiency):
-    miles_driven = (miles_driven_per_day * charging_days_per_week * num_vehicles) 
+    miles_driven = (miles_driven_per_day * charging_days_per_week * num_vehicles) * 4.345 #monthly miles driven
 
     # Calculate fuel used in gallons for ICE and kWh for electric vehicles
     gasoline_used = miles_driven / ice_efficiency  # gallons
@@ -376,6 +386,7 @@ if __name__ == '__main__':
     battery_size = 100
     vehicle_efficiency = 1.2
     chargers = [{'type': 'Level 2', 'count': 3, 'rating_kW': 7, 'efficiency': 0.95}]
+    selectedHours = [21,22,23,0,1,2,3,4,5,6,7,17]
     miles_driven_per_day = 120
     charging_days_per_week = 5
     season = 'Summer'

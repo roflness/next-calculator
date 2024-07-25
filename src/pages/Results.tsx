@@ -131,9 +131,9 @@ const Results = () => {
 
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', p: 0, m: 0 }}>
       <Sidebar isSidebarOpen={isSidebarOpen} onSidebarClose={() => setSidebarOpen(false)} isMobileSidebarOpen={false} formData={initialFormData} />
-      <Box sx={{ width: isSidebarOpen ? '80%' : '100%', p: 3 }}>
+      <Box sx={{ flexGrow: 1, width: isSidebarOpen ? '80%' : '100%', p: 3, m: 0 }}>
         <Typography variant="h4" gutterBottom>Results</Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
