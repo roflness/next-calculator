@@ -7,7 +7,7 @@ import {
     Fieldset,
     Input,
     Textarea,
-    Select,
+    // Select,
     ActionButton,
     SecondaryButton,
     RemoveButton,
@@ -28,6 +28,11 @@ import {
 // import { TextField } from '@mui/material';
 import ChargingSchedule from '../components/Results/ChargingSchedule';
 import { fetchTimeOfUseRates } from '../app/api';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import { FormControl } from '@mui/material';
+// import FormControl from '@mui/material/FormControl';
 
 
 
@@ -293,18 +298,21 @@ const MainForm = () => {
                         <ChargerSelectionContainer className="charger-selection-container" id="charger-container">
                             {chargerEntries.map((entry, index) => (
                                 <div key={index} className="charger-entry">
-                                    <Select name="chargerType" onChange={e => handleChange(e, index)} value={entry.chargerType}>
-                                        <option value="" disabled>-- Select Charger Type --</option>
-                                        {chargerTypes.map((charger) => (
-                                            <option key={charger.charger_type_id} value={charger.charger_type_id}>
-                                                {charger.type} - {charger.rating_kW} kW
-                                            </option>
-                                        ))}
-                                    </Select>
-                                    <StyledTextField type="number" name="chargerCount" label="Count of Charger" required value={entry.chargerCount} onChange={e => handleChange(e, index)} />
-                                    {chargerEntries.length > 1 && (
-                                        <RemoveButton type="button" className='remove-button' onClick={() => removeCharger(index)}>Remove</RemoveButton>
-                                    )}
+                                    <FormControl>
+                                        <InputLabel id="charger-type-selection">Charger Type</InputLabel>
+                                        <Select name="chargerType" label="Charger Type" onChange={e => handleChange(e, index)} value={entry.chargerType}>
+                                            <MenuItem value="" disabled>-- Select Charger Type --</MenuItem>
+                                            {chargerTypes.map((charger) => (
+                                                <MenuItem key={charger.charger_type_id} value={charger.charger_type_id}>
+                                                    {charger.type} - {charger.rating_kW} kW
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                        <StyledTextField type="number" name="chargerCount" label="Count of Charger" required value={entry.chargerCount} onChange={e => handleChange(e, index)} />
+                                        {chargerEntries.length > 1 && (
+                                            <RemoveButton type="button" className='remove-button' onClick={() => removeCharger(index)}>Remove</RemoveButton>
+                                        )}
+                                    </FormControl>
                                 </div>
                             ))}
                         </ChargerSelectionContainer>
@@ -319,8 +327,8 @@ const MainForm = () => {
                         <div className="MainForm">
                             <ChargingSchedule
                                 timeOfUseRates={timeOfUseRates}
-                                season="Summer"
-                                dayType="Weekday"
+                                // season="Summer"
+                                // dayType="Weekday"
                                 onHoursSelected={handleHoursSelected}
                             />
                         </div>

@@ -18,8 +18,8 @@ interface TimeOfUseRates {
 
 interface ChargingScheduleProps {
     timeOfUseRates: TimeOfUseRates;
-    season: string;
-    dayType: string;
+    // season: string;
+    // dayType: string;
     onHoursSelected: (selectedHours: number[]) => void;
 }
 
@@ -31,7 +31,7 @@ const hours = [
 const middayHours = [8, 9, 10, 11, 12, 13, 14, 15]; // 8am to 3pm
 const overnightHours = [21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7]; // 9pm to 5am
 
-const ChargingSchedule: React.FC<ChargingScheduleProps> = ({ timeOfUseRates, season, dayType, onHoursSelected }) => {
+const ChargingSchedule: React.FC<ChargingScheduleProps> = ({ timeOfUseRates, onHoursSelected }) => {
     const [selectedHours, setSelectedHours] = useState<number[]>([]);
     const [middayChecked, setMiddayChecked] = useState(false);
     const [overnightChecked, setOvernightChecked] = useState(false);

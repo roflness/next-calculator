@@ -396,7 +396,6 @@ const SecondaryForm = ({ formData }: { formData: FormInputs }) => {
                             Add Charger
                         </SecondaryButton>
                     </ChargerSelectionContainer>
-                    <SecondaryButton type="button" className='secondary-button' onClick={addCharger}>Add Another Charger</SecondaryButton>
                     <br></br>
                     <div className="SecondaryForm">
                         <ChargingSchedule
