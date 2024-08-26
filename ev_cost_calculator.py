@@ -31,7 +31,7 @@ def get_charger_config_by_id(charger_type_id):
     return charger_configurations.get(str(charger_type_id), None)
 
 # Get vehicle driving information
-def get_vehicle_driving(num_vehicles, miles_per_day)
+# def get_vehicle_driving(num_vehicles, miles_per_day)
 
 # Basic service fee based on load in a given hour. use for both vehicle usage and max charger throughput
 def get_basic_service_fee(load_kw):
@@ -128,14 +128,14 @@ def calculate_total_costs(num_vehicles, battery_size, vehicle_efficiency, charge
     return total_ev_cost, monthly_ice_cost, monthly_ice_cost_one_vehicle, usage_load_kw, subscription_threshold, subscription_level, subscription_fee, hourly_usage_load_kw, charging_hours_needed_daily, usage_subscription_threshold, usage_subscription_level, usage_subscription_fee
 
 # Adjusted Function for Total Costs to Reflect Changes
-def calculate_total_costs_weekly(num_vehicles, miles_driven_per_day, charging_days_per_week, vehicle_efficiency, season, time_of_day):
-    consumption_fee = rates[season][time_of_day]
-    ev_cost_per_mile = consumption_fee / vehicle_efficiency
+# def calculate_total_costs_weekly(num_vehicles, miles_driven_per_day, charging_days_per_week, vehicle_efficiency, season, time_of_day):
+#     consumption_fee = rates[season][time_of_day]
+#     ev_cost_per_mile = consumption_fee / vehicle_efficiency
     
-    total_distance_per_week = miles_driven_per_day * charging_days_per_week * num_vehicles
-    total_weekly_ev_cost = ev_cost_per_mile * total_distance_per_week
-    # weekly_ev_cost = calculate_weekly_ev_cost(total_distance_per_week, season, time_of_day)
-    return total_weekly_ev_cost
+#     total_distance_per_week = miles_driven_per_day * charging_days_per_week * num_vehicles
+#     total_weekly_ev_cost = ev_cost_per_mile * total_distance_per_week
+#     # weekly_ev_cost = calculate_weekly_ev_cost(total_distance_per_week, season, time_of_day)
+#     return total_weekly_ev_cost
 
 
 # Adjusted Function to Calculate Monthly Costs Including All Fees
